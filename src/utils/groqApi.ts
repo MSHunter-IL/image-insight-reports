@@ -12,10 +12,6 @@ export async function analyzeImage(imageUrl: string): Promise<{
   try {
     const base64Image = imageUrl.split(',')[1];
     
-    // First, let's convert the image to a base64 URL that Groq can handle
-    const imageContent = `data:image/jpeg;base64,${base64Image}`;
-    
-    // Format the request according to the Groq API requirements
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -30,7 +26,18 @@ export async function analyzeImage(imageUrl: string): Promise<{
           },
           {
             role: "user",
-            content: `Analyze this safety-related image: ${imageContent}`
+            content: [
+              {
+                type: "text",
+                text: "Analyze this safety-related image and identify potential hazards or safety issues."
+              },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:image/jpeg;base64,${base64Image}`
+                }
+              }
+            ]
           }
         ],
         model: "llama-3.3-70b-versatile",
