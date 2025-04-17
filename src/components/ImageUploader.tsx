@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload } from 'lucide-react';
+import { Upload, FileSearch } from 'lucide-react';
 import { useReport } from '@/context/ReportContext';
 import { UrgencyLevel, StatusType } from '@/types/report';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
+import { analyzeImage } from '@/utils/groqApi';
+import { Spinner } from '@/components/ui/spinner';
 
 export function ImageUploader() {
   const [file, setFile] = useState<File | null>(null);
@@ -17,6 +19,7 @@ export function ImageUploader() {
   const [topic, setTopic] = useState('');
   const [description, setDescription] = useState('');
   const [urgency, setUrgency] = useState<UrgencyLevel>('בינונית');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { addEntry } = useReport();
   const { toast } = useToast();
 
@@ -38,6 +41,38 @@ export function ImageUploader() {
         setPreview(event.target?.result as string);
       };
       reader.readAsDataURL(selectedFile);
+    }
+  };
+
+  const handleAnalyzeImage = async () => {
+    if (!preview) {
+      toast({
+        title: "שגיאה",
+        description: "יש לבחור תמונה תחילה",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsAnalyzing(true);
+    try {
+      const analysis = await analyzeImage(preview);
+      setDescription(analysis.description);
+      setUrgency(analysis.suggestedUrgency);
+      
+      toast({
+        title: "ניתוח הושלם",
+        description: "התמונה נותחה בהצלחה",
+      });
+    } catch (error) {
+      console.error("Error analyzing image:", error);
+      toast({
+        title: "שגיאה בניתוח",
+        description: "לא ניתן לנתח את התמונה. נא הזן תיאור ידני.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -113,7 +148,24 @@ export function ImageUploader() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">תיאור</Label>
+            <div className="flex justify-between items-center">
+              <Label htmlFor="description">תיאור</Label>
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="sm"
+                onClick={handleAnalyzeImage}
+                disabled={!preview || isAnalyzing}
+                className="text-xs flex items-center gap-1"
+              >
+                {isAnalyzing ? (
+                  <Spinner className="h-3 w-3 mr-1" />
+                ) : (
+                  <FileSearch className="h-3 w-3 mr-1" />
+                )}
+                {isAnalyzing ? "מנתח..." : "נתח תמונה"}
+              </Button>
+            </div>
             <Textarea
               id="description"
               value={description}
