@@ -41,6 +41,7 @@ export async function analyzeImage(imageUrl: string): Promise<{
           }
         ],
         model: "llama-3.3-70b-versatile",
+        response_format: { type: "json_object" }
       })
     });
 
@@ -51,27 +52,25 @@ export async function analyzeImage(imageUrl: string): Promise<{
     const result = await response.json();
     const content = result.choices[0]?.message?.content;
     
+    // Parse the JSON directly
     try {
-      // Extract JSON from the response
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      const jsonStr = jsonMatch ? jsonMatch[0] : null;
-      
-      if (jsonStr) {
-        const parsedData = JSON.parse(jsonStr);
-        return {
-          description: parsedData.description || "לא זוהה תיאור בתמונה",
-          suggestedUrgency: (parsedData.urgency as UrgencyLevel) || "בינונית"
-        };
-      }
+      const parsedData = JSON.parse(content);
+      return {
+        description: parsedData.description || "לא זוהה תיאור בתמונה",
+        suggestedUrgency: parsedData.urgency || "בינונית"
+      };
     } catch (parseError) {
       console.error("Failed to parse AI response:", parseError);
+      
+      // Fallback parsing attempt
+      const descriptions = content.match(/"description"\s*:\s*"([^"]+)"/);
+      const urgencies = content.match(/"urgency"\s*:\s*"([^"]+)"/);
+
+      return {
+        description: descriptions ? descriptions[1] : "לא ניתן לנתח את התמונה. נא הזן תיאור ידני.",
+        suggestedUrgency: urgencies ? urgencies[1] as UrgencyLevel : "בינונית"
+      };
     }
-    
-    // Fallback if JSON parsing fails
-    return {
-      description: "לא ניתן לנתח את התמונה. נא הזן תיאור ידני.",
-      suggestedUrgency: "בינונית"
-    };
   } catch (error) {
     console.error("Error analyzing image:", error);
     return {
