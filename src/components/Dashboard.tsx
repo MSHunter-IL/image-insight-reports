@@ -1,14 +1,19 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ImageUploader } from './ImageUploader';
 import { ReportList } from './ReportList';
 import { ReportExport } from './ReportExport';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Building, MapPin, User } from 'lucide-react';
+import { Building, MapPin, User, Phone } from 'lucide-react';
 
 export function Dashboard() {
+  const [companyName, setCompanyName] = useState('');
+  const [address, setAddress] = useState('');
+  const [contactName, setContactName] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+
   return (
     <div className="container py-8">
       <div className="flex justify-between items-center mb-6">
@@ -22,27 +27,52 @@ export function Dashboard() {
       
       <Card className="mb-6">
         <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <Building className="h-4 w-4" />
                 שם חברה
               </Label>
-              <Input placeholder="הזן שם חברה" />
+              <Input 
+                placeholder="הזן שם חברה" 
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
                 כתובת
               </Label>
-              <Input placeholder="הזן כתובת" />
+              <Input 
+                placeholder="הזן כתובת" 
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
                 <User className="h-4 w-4" />
                 איש קשר
               </Label>
-              <Input placeholder="הזן שם איש קשר" />
+              <Input 
+                placeholder="הזן שם איש קשר"
+                value={contactName}
+                onChange={(e) => setContactName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Phone className="h-4 w-4" />
+                טלפון איש קשר
+              </Label>
+              <Input 
+                placeholder="הזן מספר טלפון"
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                type="tel"
+                dir="ltr"
+              />
             </div>
           </div>
         </CardContent>
@@ -53,7 +83,14 @@ export function Dashboard() {
           <h2 className="text-xl font-semibold mb-4">העלאת תמונה</h2>
           <ImageUploader />
           <div className="mt-6">
-            <ReportExport />
+            <ReportExport 
+              companyDetails={{
+                name: companyName,
+                address,
+                contactName,
+                contactPhone
+              }}
+            />
           </div>
         </div>
         

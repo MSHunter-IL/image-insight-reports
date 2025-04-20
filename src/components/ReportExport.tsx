@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useReport } from '@/context/ReportContext';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileDown, FilePlus2, Trash2 } from 'lucide-react';
+import { FileDown, Trash2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,7 +16,18 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/components/ui/use-toast';
 
-export function ReportExport() {
+interface CompanyDetails {
+  name: string;
+  address: string;
+  contactName: string;
+  contactPhone: string;
+}
+
+interface ReportExportProps {
+  companyDetails: CompanyDetails;
+}
+
+export function ReportExport({ companyDetails }: ReportExportProps) {
   const { entries, clearAllEntries } = useReport();
   const { toast } = useToast();
 
@@ -30,17 +41,6 @@ export function ReportExport() {
       return;
     }
 
-    const reportWindow = window.open('', '_blank');
-    if (!reportWindow) {
-      toast({
-        title: "חסימת חלונות קופצים",
-        description: "אפשר חלונות קופצים בדפדפן כדי להציג את הסקר",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Create HTML content for the report
     let htmlContent = `
       <!DOCTYPE html>
       <html lang="he" dir="rtl">
@@ -142,7 +142,29 @@ export function ReportExport() {
         </style>
       </head>
       <body>
-        <h1>סקר בטיחות</h1>
+        <div class="header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h1>סקר בטיחות</h1>
+          <img src="/lovable-uploads/26b58140-d09a-43b7-b02a-4365f061cc76.png" alt="לוגו" style="height: 64px; object-fit: contain;" />
+        </div>
+
+        <div class="company-details" style="margin-bottom: 30px; border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
+          <h2 style="margin-bottom: 10px;">פרטי החברה</h2>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+            <div>
+              <strong>שם חברה:</strong> ${companyDetails.name || 'לא צוין'}
+            </div>
+            <div>
+              <strong>כתובת:</strong> ${companyDetails.address || 'לא צוין'}
+            </div>
+            <div>
+              <strong>איש קשר:</strong> ${companyDetails.contactName || 'לא צוין'}
+            </div>
+            <div>
+              <strong>טלפון:</strong> ${companyDetails.contactPhone || 'לא צוין'}
+            </div>
+          </div>
+        </div>
+
         <p>תאריך: ${new Date().toLocaleDateString('he-IL')}</p>
         <table>
           <thead>
@@ -158,7 +180,6 @@ export function ReportExport() {
           <tbody>
     `;
 
-    // Add entries to the table
     entries.forEach((entry, index) => {
       const urgencyClass = entry.urgency === 'גבוהה' 
         ? 'urgency-high' 
@@ -184,7 +205,6 @@ export function ReportExport() {
       `;
     });
 
-    // Close the HTML structure
     htmlContent += `
           </tbody>
         </table>
@@ -193,15 +213,17 @@ export function ReportExport() {
       </html>
     `;
 
-    // Write content to new window and focus
-    reportWindow.document.write(htmlContent);
-    reportWindow.document.close();
-    reportWindow.focus();
+    const reportWindow = window.open('', '_blank');
+    if (reportWindow) {
+      reportWindow.document.write(htmlContent);
+      reportWindow.document.close();
+      reportWindow.focus();
 
-    toast({
-      title: "סקר הופק בהצלחה",
-      description: "הסקר נפתח בחלון חדש",
-    });
+      toast({
+        title: "סקר הופק בהצלחה",
+        description: "הסקר נפתח בחלון חדש",
+      });
+    }
   };
 
   return (
