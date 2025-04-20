@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useReport } from '@/context/ReportContext';
@@ -25,7 +24,7 @@ export function ReportExport() {
     if (entries.length === 0) {
       toast({
         title: "אין נתונים",
-        description: "אין פריטים בדוח להצגה",
+        description: "אין פריטים בסקר להצגה",
         variant: "destructive"
       });
       return;
@@ -35,7 +34,7 @@ export function ReportExport() {
     if (!reportWindow) {
       toast({
         title: "חסימת חלונות קופצים",
-        description: "אפשר חלונות קופצים בדפדפן כדי להציג את הדוח",
+        description: "אפשר חלונות קופצים בדפדפן כדי להציג את הסקר",
         variant: "destructive"
       });
       return;
@@ -48,7 +47,7 @@ export function ReportExport() {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>דוח בטיחות</title>
+        <title>סקר בטיחות</title>
         <style>
           body {
             font-family: Arial, sans-serif;
@@ -143,7 +142,7 @@ export function ReportExport() {
         </style>
       </head>
       <body>
-        <h1>דוח בטיחות</h1>
+        <h1>סקר בטיחות</h1>
         <p>תאריך: ${new Date().toLocaleDateString('he-IL')}</p>
         <table>
           <thead>
@@ -189,7 +188,7 @@ export function ReportExport() {
     htmlContent += `
           </tbody>
         </table>
-        <button class="print-button" onclick="window.print()">הדפס דוח</button>
+        <button class="print-button" onclick="window.print()">הדפס סקר</button>
       </body>
       </html>
     `;
@@ -200,15 +199,15 @@ export function ReportExport() {
     reportWindow.focus();
 
     toast({
-      title: "דוח הופק בהצלחה",
-      description: "הדוח נפתח בחלון חדש",
+      title: "סקר הופק בהצלחה",
+      description: "הסקר נפתח בחלון חדש",
     });
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>כלי דוח</CardTitle>
+        <CardTitle>כלי סקר</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
@@ -218,7 +217,7 @@ export function ReportExport() {
             disabled={entries.length === 0}
           >
             <FileDown className="ml-2 h-4 w-4" />
-            הפק דוח
+            הפק סקר
           </Button>
         </div>
       </CardContent>
@@ -238,7 +237,7 @@ export function ReportExport() {
             <AlertDialogHeader>
               <AlertDialogTitle>האם אתה בטוח?</AlertDialogTitle>
               <AlertDialogDescription>
-                פעולה זו תמחק את כל הפריטים בדוח באופן בלתי הפיך.
+                פעולה זו תמחק את כל הפריטים בסקר באופן בלתי הפיך.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
