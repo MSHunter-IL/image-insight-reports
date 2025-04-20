@@ -12,6 +12,7 @@ export async function analyzeImage(imageUrl: string): Promise<{
   try {
     const base64Image = imageUrl.split(',')[1];
     
+    // Using the updated model and format that supports image analysis
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -40,12 +41,14 @@ export async function analyzeImage(imageUrl: string): Promise<{
             ]
           }
         ],
-        model: "llama-3.3-70b-versatile",
+        model: "meta-llama/llama-4-scout-17b-16e-instruct",
+        temperature: 0.7,
         response_format: { type: "json_object" }
       })
     });
 
     if (!response.ok) {
+      console.error(`API request failed: ${response.status}`, await response.text());
       throw new Error(`API request failed: ${response.status}`);
     }
 
@@ -60,7 +63,7 @@ export async function analyzeImage(imageUrl: string): Promise<{
         suggestedUrgency: parsedData.urgency || "בינונית"
       };
     } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError);
+      console.error("Failed to parse AI response:", parseError, content);
       
       // Fallback parsing attempt
       const descriptions = content.match(/"description"\s*:\s*"([^"]+)"/);

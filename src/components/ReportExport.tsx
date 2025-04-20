@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useReport } from '@/context/ReportContext';
@@ -81,6 +82,12 @@ export function ReportExport({ companyDetails }: ReportExportProps) {
             max-height: 100px;
             object-fit: cover;
           }
+          .logo {
+            display: block;
+            margin: 0 auto 20px;
+            width: 250px;
+            height: auto;
+          }
           .urgency-high {
             background-color: #FFEBEE;
             color: #B71C1C;
@@ -134,6 +141,10 @@ export function ReportExport({ companyDetails }: ReportExportProps) {
             cursor: pointer;
             font-size: 16px;
           }
+          .header {
+            text-align: center;
+            margin-bottom: 30px;
+          }
           @media print {
             .print-button {
               display: none;
@@ -142,9 +153,9 @@ export function ReportExport({ companyDetails }: ReportExportProps) {
         </style>
       </head>
       <body>
-        <div class="header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div class="header">
+          <img src="/lovable-uploads/26b58140-d09a-43b7-b02a-4365f061cc76.png" alt="לוגו" class="logo" />
           <h1>סקר בטיחות</h1>
-          <img src="/lovable-uploads/26b58140-d09a-43b7-b02a-4365f061cc76.png" alt="לוגו" style="height: 64px; object-fit: contain;" />
         </div>
 
         <div class="company-details" style="margin-bottom: 30px; border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
