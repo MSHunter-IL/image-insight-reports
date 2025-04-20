@@ -56,10 +56,14 @@ export function ImageUploader() {
 
     setIsAnalyzing(true);
     try {
-      const analysis = await analyzeImage(preview);
+      const analysis = await analyzeImage(preview, description);
       setDescription(analysis.description);
       setUrgency(analysis.suggestedUrgency);
       
+      // Extract topic from the analysis description
+      const topicFromDescription = analysis.description.split('.')[0];
+      setTopic(topicFromDescription);
+
       toast({
         title: "ניתוח הושלם",
         description: "התמונה נותחה בהצלחה",

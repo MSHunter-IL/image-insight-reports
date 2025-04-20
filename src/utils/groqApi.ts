@@ -1,18 +1,20 @@
-
 import { UrgencyLevel } from '@/types/report';
 
 // This is a placeholder for the API key. In a production environment, this should be handled securely.
 // For demo purposes, we'll store it here, but in production it should be in a backend service.
 const GROQ_API_KEY = "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";
 
-export async function analyzeImage(imageUrl: string): Promise<{
+export async function analyzeImage(imageUrl: string, userDescription?: string): Promise<{
   description: string;
   suggestedUrgency: UrgencyLevel;
 }> {
   try {
     const base64Image = imageUrl.split(',')[1];
     
-    // Using the updated model and format that supports image analysis
+    const systemPrompt = userDescription 
+      ? `You are a safety inspector analyzing images. Consider this additional context from the user: "${userDescription}". Provide a detailed description of safety issues visible in the image, incorporating the user's context. Return your answer in JSON format with 'description' and 'urgency' keys. The 'description' should be in Hebrew and 25-50 words long. The 'urgency' key should be exactly one of these values: 'גבוהה', 'בינונית', or 'נמוכה' based on how critical the safety issue appears.`
+      : `You are a safety inspector analyzing images. Provide a brief description of safety issues visible in the image and suggest an urgency level. Return your answer in JSON format with 'description' and 'urgency' keys. The 'description' should be in Hebrew and describe the safety issue in around 25-50 words. The 'urgency' key should be exactly one of these values: 'גבוהה', 'בינונית', or 'נמוכה' based on how critical the safety issue appears.`;
+
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -23,7 +25,7 @@ export async function analyzeImage(imageUrl: string): Promise<{
         messages: [
           {
             role: "system",
-            content: "You are a safety inspector analyzing images. Provide a brief description of safety issues visible in the image and suggest an urgency level (גבוהה/בינונית/נמוכה). Return your answer in JSON format with 'description' and 'urgency' keys. The 'description' should be in Hebrew and describe the safety issue in around 15-30 words. The 'urgency' key should be exactly one of these values: 'גבוהה', 'בינונית', or 'נמוכה' based on how critical the safety issue appears."
+            content: systemPrompt
           },
           {
             role: "user",

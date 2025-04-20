@@ -42,7 +42,7 @@ const generateReportStyles = () => `
   .logo {
     display: block;
     margin: 0 auto 20px;
-    width: 250px;
+    width: 400px;
     height: auto;
   }
   .urgency-high {
@@ -184,7 +184,30 @@ export const generateReportContent = (entries: any[], companyDetails: CompanyDet
           }).join('')}
         </tbody>
       </table>
-      <button class="print-button" onclick="window.print()">הדפס סקר</button>
+      <div class="actions" style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+        <button class="print-button" onclick="window.print()">הדפס סקר</button>
+        <button class="print-button" onclick="window.downloadPDF()">הורד PDF</button>
+      </div>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+      <script>
+        function downloadPDF() {
+          const element = document.body;
+          const buttons = document.querySelectorAll('.actions');
+          buttons.forEach(btn => btn.style.display = 'none');
+          
+          const opt = {
+            margin: 1,
+            filename: 'safety-report.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+          };
+
+          html2pdf().set(opt).from(element).save().then(() => {
+            buttons.forEach(btn => btn.style.display = 'flex');
+          });
+        }
+      </script>
     </body>
     </html>
   `;
