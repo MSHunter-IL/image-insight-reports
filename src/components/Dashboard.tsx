@@ -6,7 +6,7 @@ import { ReportExport } from './ReportExport';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { building, map-pin, user } from 'lucide-react';
+import { Building, MapPin, User } from 'lucide-react';
 
 export function Dashboard() {
   return (
@@ -25,21 +25,21 @@ export function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
-                <building className="h-4 w-4" />
+                <Building className="h-4 w-4" />
                 שם חברה
               </Label>
               <Input placeholder="הזן שם חברה" />
             </div>
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
-                <map-pin className="h-4 w-4" />
+                <MapPin className="h-4 w-4" />
                 כתובת
               </Label>
               <Input placeholder="הזן כתובת" />
             </div>
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
-                <user className="h-4 w-4" />
+                <User className="h-4 w-4" />
                 איש קשר
               </Label>
               <Input placeholder="הזן שם איש קשר" />
