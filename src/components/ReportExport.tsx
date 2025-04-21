@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useReport } from '@/context/ReportContext';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileDown } from 'lucide-react';
+import { FileDown, ClipboardList, FileText } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { generateReportContent } from '@/utils/reportGenerator';
 import { ClearAllConfirmation } from './report/ClearAllConfirmation';
@@ -23,7 +23,7 @@ export function ReportExport({ companyDetails }: ReportExportProps) {
   const { entries, clearAllEntries } = useReport();
   const { toast } = useToast();
 
-  const generateReport = () => {
+  const generateReport = (includeSummary = false) => {
     if (entries.length === 0) {
       toast({
         title: "אין נתונים",
@@ -33,7 +33,7 @@ export function ReportExport({ companyDetails }: ReportExportProps) {
       return;
     }
 
-    const htmlContent = generateReportContent(entries, companyDetails);
+    const htmlContent = generateReportContent(entries, companyDetails, includeSummary);
     
     const reportWindow = window.open('', '_blank');
     if (reportWindow) {
@@ -48,6 +48,10 @@ export function ReportExport({ companyDetails }: ReportExportProps) {
     }
   };
 
+  const generateReportWithSummary = () => {
+    generateReport(true);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -56,12 +60,22 @@ export function ReportExport({ companyDetails }: ReportExportProps) {
       <CardContent>
         <div className="space-y-2">
           <Button 
-            onClick={generateReport} 
+            onClick={() => generateReport()} 
             className="w-full"
             disabled={entries.length === 0}
           >
-            <FileDown className="ml-2 h-4 w-4" />
+            <FileText className="ml-2 h-4 w-4" />
             הפק סקר
+          </Button>
+          
+          <Button 
+            onClick={generateReportWithSummary} 
+            className="w-full"
+            disabled={entries.length === 0}
+            variant="secondary"
+          >
+            <ClipboardList className="ml-2 h-4 w-4" />
+            הפק סקר עם ניתוח וסיכום
           </Button>
         </div>
       </CardContent>

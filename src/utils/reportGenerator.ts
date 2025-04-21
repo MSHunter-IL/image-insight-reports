@@ -22,6 +22,7 @@ const generateReportStyles = () => `
     border-collapse: collapse;
     margin-bottom: 30px;
     table-layout: fixed;
+    direction: rtl;
   }
   th, td {
     border: 1px solid #ddd;
@@ -132,14 +133,106 @@ const generateReportStyles = () => `
     margin-bottom: 15px;
     text-align: right;
   }
+  .summary-container {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+  }
+  .summary-container h2 {
+    margin-bottom: 10px;
+  }
   @media print {
-    .print-button {
+    .print-button, .action-button {
       display: none;
     }
   }
 `;
 
-export const generateReportContent = (entries: any[], companyDetails: CompanyDetails) => {
+// Generate a summary of the report based on entries
+const generateReportSummary = (entries: any[]) => {
+  // Count entries by urgency
+  const urgencyCounts = {
+    'גבוהה': 0,
+    'בינונית': 0,
+    'נמוכה': 0
+  };
+  
+  // Count entries by status
+  const statusCounts = {
+    'טרם טופל': 0,
+    'בטיפול': 0,
+    'טופל': 0
+  };
+  
+  entries.forEach(entry => {
+    if (entry.urgency in urgencyCounts) {
+      urgencyCounts[entry.urgency]++;
+    }
+    
+    if (entry.status in statusCounts) {
+      statusCounts[entry.status]++;
+    }
+  });
+
+  // Generate recommendations based on the counts
+  let recommendations = '';
+  
+  if (urgencyCounts['גבוהה'] > 0) {
+    recommendations += `<li>יש לטפל ב-${urgencyCounts['גבוהה']} ממצאים בדחיפות גבוהה בהקדם האפשרי.</li>`;
+  }
+  
+  if (statusCounts['טרם טופל'] > (entries.length / 2)) {
+    recommendations += `<li>יותר ממחצית הממצאים (${statusCounts['טרם טופל']} מתוך ${entries.length}) טרם טופלו. מומלץ לזרז את קצב הטיפול.</li>`;
+  }
+  
+  if (statusCounts['טופל'] === entries.length) {
+    recommendations += `<li>כל הממצאים טופלו בהצלחה!</li>`;
+  } else if (statusCounts['טופל'] > 0) {
+    const percentage = Math.round((statusCounts['טופל'] / entries.length) * 100);
+    recommendations += `<li>${percentage}% מהממצאים טופלו (${statusCounts['טופל']} מתוך ${entries.length}).</li>`;
+  }
+  
+  if (recommendations === '') {
+    recommendations = '<li>אין המלצות ספציפיות בשלב זה.</li>';
+  }
+
+  return `
+    <div class="summary-container">
+      <h2>סיכום וניתוח הדוח</h2>
+      
+      <div>
+        <h3>סיכום ממצאים:</h3>
+        <ul>
+          <li>סה"כ ממצאים: ${entries.length}</li>
+          <li>דחיפות גבוהה: ${urgencyCounts['גבוהה']}</li>
+          <li>דחיפות בינונית: ${urgencyCounts['בינונית']}</li>
+          <li>דחיפות נמוכה: ${urgencyCounts['נמוכה']}</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h3>סטטוס טיפול:</h3>
+        <ul>
+          <li>טרם טופל: ${statusCounts['טרם טופל']}</li>
+          <li>בטיפול: ${statusCounts['בטיפול']}</li>
+          <li>טופל: ${statusCounts['טופל']}</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h3>המלצות:</h3>
+        <ul>
+          ${recommendations}
+        </ul>
+      </div>
+    </div>
+  `;
+};
+
+export const generateReportContent = (entries: any[], companyDetails: CompanyDetails, includeSummary = false) => {
   const htmlContent = `
     <!DOCTYPE html>
     <html lang="he" dir="rtl">
@@ -178,6 +271,8 @@ export const generateReportContent = (entries: any[], companyDetails: CompanyDet
       <div class="date-container">
         <strong>תאריך:</strong> ${new Date().toLocaleDateString('he-IL')}
       </div>
+
+      ${includeSummary ? generateReportSummary(entries) : ''}
 
       <table>
         <thead>
@@ -220,6 +315,7 @@ export const generateReportContent = (entries: any[], companyDetails: CompanyDet
       <div class="actions" style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
         <button class="print-button" onclick="window.print()">הדפס סקר</button>
         <button class="print-button" onclick="window.downloadPDF()">הורד PDF</button>
+        ${!includeSummary ? `<button class="print-button action-button" onclick="window.showSummary()">הצג ניתוח וסיכום</button>` : ''}
       </div>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
       <script>
@@ -233,13 +329,34 @@ export const generateReportContent = (entries: any[], companyDetails: CompanyDet
             filename: 'safety-report.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
-            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            jsPDF: { 
+              unit: 'in', 
+              format: 'a4', 
+              orientation: 'portrait',
+              compress: false,
+              textRenderingMode: 'text'
+            }
           };
 
           html2pdf().set(opt).from(element).save().then(() => {
             buttons.forEach(btn => btn.style.display = 'flex');
           });
         }
+        
+        window.showSummary = function() {
+          // Use the current URL to reload but with summary
+          const url = new URL(window.location.href);
+          url.searchParams.set('summary', 'true');
+          window.open(url.toString(), '_blank');
+        }
+        
+        // Check if we need to show the summary immediately (based on URL parameter)
+        document.addEventListener('DOMContentLoaded', function() {
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get('summary') === 'true' && !document.querySelector('.summary-container')) {
+            window.location.reload();
+          }
+        });
       </script>
     </body>
     </html>
