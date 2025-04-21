@@ -60,9 +60,8 @@ export function ImageUploader() {
       setDescription(analysis.description);
       setUrgency(analysis.suggestedUrgency);
       
-      // Extract topic from the analysis description
-      const topicFromDescription = analysis.description.split('.')[0];
-      setTopic(topicFromDescription);
+      // Use the dedicated topic from the analysis
+      setTopic(analysis.suggestedTopic);
 
       toast({
         title: "ניתוח הושלם",
@@ -93,11 +92,11 @@ export function ImageUploader() {
     }
 
     if (!topic) {
-      setTopic('נושא כללי');
+      setTopic('ממצא בטיחות');
     }
 
     addEntry({
-      topic: topic || 'נושא כללי',
+      topic: topic || 'ממצא בטיחות',
       description: description || 'אין תיאור',
       urgency,
       status: 'טרם טופל',
@@ -142,16 +141,6 @@ export function ImageUploader() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="topic">נושא</Label>
-            <Input
-              id="topic"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder="נושא הממצא"
-            />
-          </div>
-
-          <div className="space-y-2">
             <div className="flex justify-between items-center">
               <Label htmlFor="description">תיאור</Label>
               <Button 
@@ -177,6 +166,18 @@ export function ImageUploader() {
               placeholder="תיאור הממצא"
               className="resize-none"
               rows={3}
+              dir="rtl"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="topic">נושא</Label>
+            <Input
+              id="topic"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="נושא הממצא"
+              dir="rtl"
             />
           </div>
 

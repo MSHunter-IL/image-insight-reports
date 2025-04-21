@@ -1,3 +1,4 @@
+
 import { UrgencyLevel } from '@/types/report';
 
 // This is a placeholder for the API key. In a production environment, this should be handled securely.
@@ -7,13 +8,28 @@ const GROQ_API_KEY = "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";
 export async function analyzeImage(imageUrl: string, userDescription?: string): Promise<{
   description: string;
   suggestedUrgency: UrgencyLevel;
+  suggestedTopic: string;
 }> {
   try {
     const base64Image = imageUrl.split(',')[1];
     
     const systemPrompt = userDescription 
-      ? `You are a safety inspector analyzing images. Consider this additional context from the user: "${userDescription}". Provide a detailed description of safety issues visible in the image, incorporating the user's context. Return your answer in JSON format with 'description' and 'urgency' keys. The 'description' should be in Hebrew and 25-50 words long. The 'urgency' key should be exactly one of these values: 'גבוהה', 'בינונית', or 'נמוכה' based on how critical the safety issue appears.`
-      : `You are a safety inspector analyzing images. Provide a brief description of safety issues visible in the image and suggest an urgency level. Return your answer in JSON format with 'description' and 'urgency' keys. The 'description' should be in Hebrew and describe the safety issue in around 25-50 words. The 'urgency' key should be exactly one of these values: 'גבוהה', 'בינונית', or 'נמוכה' based on how critical the safety issue appears.`;
+      ? `You are a safety inspector analyzing images. Consider this additional context from the user: "${userDescription}". 
+      Provide a detailed description of safety issues visible in the image, incorporating the user's context. 
+      Return your answer in JSON format with three keys: 
+      1. 'topic' - A very brief title (2-3 words maximum) that summarizes the safety issue in Hebrew
+      2. 'description' - A detailed description in Hebrew (25-50 words) of the safety issue
+      3. 'urgency' - The urgency level, which must be exactly one of these values: 'גבוהה', 'בינונית', or 'נמוכה'
+      
+      Important: Make sure the topic is much shorter than the description and clearly different. The text should follow RTL (right-to-left) conventions for Hebrew, with proper spacing between words.`
+      
+      : `You are a safety inspector analyzing images. Provide a brief description of safety issues visible in the image and suggest an urgency level. 
+      Return your answer in JSON format with three keys: 
+      1. 'topic' - A very brief title (2-3 words maximum) that summarizes the safety issue in Hebrew
+      2. 'description' - A detailed description in Hebrew (25-50 words) of the safety issue
+      3. 'urgency' - The urgency level, which must be exactly one of these values: 'גבוהה', 'בינונית', or 'נמוכה'
+      
+      Important: Make sure the topic is much shorter than the description and clearly different. The text should follow RTL (right-to-left) conventions for Hebrew, with proper spacing between words.`;
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -62,25 +78,29 @@ export async function analyzeImage(imageUrl: string, userDescription?: string): 
       const parsedData = JSON.parse(content);
       return {
         description: parsedData.description || "לא זוהה תיאור בתמונה",
-        suggestedUrgency: parsedData.urgency || "בינונית"
+        suggestedUrgency: parsedData.urgency || "בינונית",
+        suggestedTopic: parsedData.topic || "ממצא בטיחות"
       };
     } catch (parseError) {
       console.error("Failed to parse AI response:", parseError, content);
       
       // Fallback parsing attempt
+      const topics = content.match(/"topic"\s*:\s*"([^"]+)"/);
       const descriptions = content.match(/"description"\s*:\s*"([^"]+)"/);
       const urgencies = content.match(/"urgency"\s*:\s*"([^"]+)"/);
 
       return {
         description: descriptions ? descriptions[1] : "לא ניתן לנתח את התמונה. נא הזן תיאור ידני.",
-        suggestedUrgency: urgencies ? urgencies[1] as UrgencyLevel : "בינונית"
+        suggestedUrgency: urgencies ? urgencies[1] as UrgencyLevel : "בינונית",
+        suggestedTopic: topics ? topics[1] : "ממצא בטיחות"
       };
     }
   } catch (error) {
     console.error("Error analyzing image:", error);
     return {
       description: "שגיאה בניתוח התמונה. נא הזן תיאור ידני.",
-      suggestedUrgency: "בינונית"
+      suggestedUrgency: "בינונית",
+      suggestedTopic: "ממצא בטיחות"
     };
   }
 }

@@ -42,8 +42,9 @@ const generateReportStyles = () => `
   .logo {
     display: block;
     margin: 0 auto 20px;
-    width: 400px;
+    width: 600px;
     height: auto;
+    max-width: 90%;
   }
   .urgency-high {
     background-color: #FFEBEE;
@@ -190,13 +191,13 @@ export const generateReportContent = (entries: any[], companyDetails: CompanyDet
       </div>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
       <script>
-        function downloadPDF() {
+        window.downloadPDF = function() {
           const element = document.body;
           const buttons = document.querySelectorAll('.actions');
           buttons.forEach(btn => btn.style.display = 'none');
           
           const opt = {
-            margin: 1,
+            margin: [0.5, 0.5, 0.5, 0.5],
             filename: 'safety-report.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
