@@ -1,102 +1,116 @@
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ImageUploader } from './ImageUploader';
-import { ReportList } from './ReportList';
 import { ReportExport } from './ReportExport';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Building, MapPin, User, Phone } from 'lucide-react';
+import { ReportList } from './ReportList';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Button } from './ui/button';
+import { Building } from 'lucide-react';
 
 export function Dashboard() {
-  const [companyName, setCompanyName] = useState('');
-  const [address, setAddress] = useState('');
-  const [contactName, setContactName] = useState('');
-  const [contactPhone, setContactPhone] = useState('');
+  const [companyDetails, setCompanyDetails] = useState({
+    name: 'בוב בטיחות',
+    address: 'רחוב הבטיחות 123, תל אביב',
+    contactName: 'ישראל ישראלי',
+    contactPhone: '052-1234567'
+  });
 
   return (
-    <div className="container py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">סקר בטיחות</h1>
-        <img 
-          src="/lovable-uploads/26b58140-d09a-43b7-b02a-4365f061cc76.png"
-          alt="לוגו"
-          className="h-16 object-contain"
-        />
-      </div>
-      
-      <Card className="mb-6">
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Building className="h-4 w-4" />
-                שם חברה
-              </Label>
-              <Input 
-                placeholder="הזן שם חברה" 
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <MapPin className="h-4 w-4" />
-                כתובת
-              </Label>
-              <Input 
-                placeholder="הזן כתובת" 
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                איש קשר
-              </Label>
-              <Input 
-                placeholder="הזן שם איש קשר"
-                value={contactName}
-                onChange={(e) => setContactName(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Phone className="h-4 w-4" />
-                טלפון איש קשר
-              </Label>
-              <Input 
-                placeholder="הזן מספר טלפון"
-                value={contactPhone}
-                onChange={(e) => setContactPhone(e.target.value)}
-                type="tel"
-                dir="ltr"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        <div className="md:col-span-4">
-          <h2 className="text-xl font-semibold mb-4">העלאת תמונה</h2>
-          <ImageUploader />
-          <div className="mt-6">
-            <ReportExport 
-              companyDetails={{
-                name: companyName,
-                address,
-                contactName,
-                contactPhone
-              }}
-            />
-          </div>
+    <div dir="rtl" className="container mx-auto py-6">
+      <header className="flex flex-col md:flex-row justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">מערכת סקרי בטיחות</h1>
+          <p className="text-muted-foreground">צור ונהל סקרי בטיחות בקלות</p>
         </div>
-        
-        <div className="md:col-span-8">
-          <h2 className="text-xl font-semibold mb-4">פריטי הדוח</h2>
-          <ReportList />
+        <div className="flex space-x-2 mt-4 md:mt-0">
+          <Link to="/sites">
+            <Button variant="outline" className="flex items-center gap-2">
+              <Building className="h-4 w-4" />
+              ניהול אתרים
+            </Button>
+          </Link>
+        </div>
+      </header>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          <Tabs defaultValue="list">
+            <TabsList className="w-full">
+              <TabsTrigger value="list" className="flex-1">רשימת ממצאים</TabsTrigger>
+              <TabsTrigger value="upload" className="flex-1">העלאת תמונות</TabsTrigger>
+            </TabsList>
+            <TabsContent value="list">
+              <Card>
+                <CardHeader>
+                  <CardTitle>רשימת ממצאים</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ReportList />
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="upload">
+              <ImageUploader />
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        <div>
+          <Card className="sticky top-6">
+            <CardHeader>
+              <CardTitle>פרטי חברה</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div>
+                  <label className="text-sm font-medium">שם החברה</label>
+                  <input
+                    type="text"
+                    className="w-full p-2 border rounded mt-1"
+                    value={companyDetails.name}
+                    onChange={(e) => setCompanyDetails({...companyDetails, name: e.target.value})}
+                    dir="rtl"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">כתובת</label>
+                  <input
+                    type="text"
+                    className="w-full p-2 border rounded mt-1"
+                    value={companyDetails.address}
+                    onChange={(e) => setCompanyDetails({...companyDetails, address: e.target.value})}
+                    dir="rtl"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">איש קשר</label>
+                  <input
+                    type="text"
+                    className="w-full p-2 border rounded mt-1"
+                    value={companyDetails.contactName}
+                    onChange={(e) => setCompanyDetails({...companyDetails, contactName: e.target.value})}
+                    dir="rtl"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">טלפון</label>
+                  <input
+                    type="text"
+                    className="w-full p-2 border rounded mt-1"
+                    value={companyDetails.contactPhone}
+                    onChange={(e) => setCompanyDetails({...companyDetails, contactPhone: e.target.value})}
+                    dir="rtl"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="mt-6">
+            <ReportExport companyDetails={companyDetails} />
+          </div>
         </div>
       </div>
     </div>

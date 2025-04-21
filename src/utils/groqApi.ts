@@ -5,7 +5,13 @@ import { UrgencyLevel } from '@/types/report';
 // For demo purposes, we'll store it here, but in production it should be in a backend service.
 const GROQ_API_KEY = "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";
 
-export async function analyzeImage(imageUrl: string, userDescription?: string): Promise<{
+export type GroqModel = 'meta-llama/llama-4-scout-17b-16e-instruct' | 'meta-llama/llama-3.1-8b-instruct' | 'mixtral-8x7b-32768';
+
+export async function analyzeImage(
+  imageUrl: string, 
+  userDescription?: string,
+  model: GroqModel = 'meta-llama/llama-4-scout-17b-16e-instruct'
+): Promise<{
   description: string;
   suggestedUrgency: UrgencyLevel;
   suggestedTopic: string;
@@ -14,22 +20,24 @@ export async function analyzeImage(imageUrl: string, userDescription?: string): 
     const base64Image = imageUrl.split(',')[1];
     
     const systemPrompt = userDescription 
-      ? `You are a safety inspector analyzing images. Consider this additional context from the user: "${userDescription}". 
-      Provide a detailed description of safety issues visible in the image, incorporating the user's context. 
-      Return your answer in JSON format with three keys: 
-      1. 'topic' - A very brief title (2-3 words maximum) that summarizes the safety issue in Hebrew
-      2. 'description' - A detailed description in Hebrew (25-50 words) of the safety issue
-      3. 'urgency' - The urgency level, which must be exactly one of these values: 'גבוהה', 'בינונית', or 'נמוכה'
+      ? `אתה מפקח בטיחות המנתח תמונות. התייחס להקשר נוסף זה מהמשתמש: "${userDescription}". 
+      ספק תיאור מפורט של בעיות הבטיחות הנראות בתמונה, תוך שילוב ההקשר של המשתמש. 
+      החזר את התשובה שלך בפורמט JSON עם שלושה מפתחות: 
+      1. 'topic' - כותרת קצרה מאוד (2-3 מילים לכל היותר) המסכמת את בעיית הבטיחות בעברית
+      2. 'description' - תיאור מפורט בעברית (25-50 מילים) של בעיית הבטיחות
+      3. 'urgency' - רמת הדחיפות, שחייבת להיות בדיוק אחד מהערכים הבאים: 'גבוהה', 'בינונית', או 'נמוכה'
       
-      Important: Make sure the topic is much shorter than the description and clearly different. The text should follow RTL (right-to-left) conventions for Hebrew, with proper spacing between words.`
+      חשוב: ודא שהנושא קצר בהרבה מהתיאור ושונה בבירור ממנו. הטקסט צריך לעקוב אחר מוסכמות RTL (מימין לשמאל) עבור עברית, עם רווחים תקינים בין המילים.`
       
-      : `You are a safety inspector analyzing images. Provide a brief description of safety issues visible in the image and suggest an urgency level. 
-      Return your answer in JSON format with three keys: 
-      1. 'topic' - A very brief title (2-3 words maximum) that summarizes the safety issue in Hebrew
-      2. 'description' - A detailed description in Hebrew (25-50 words) of the safety issue
-      3. 'urgency' - The urgency level, which must be exactly one of these values: 'גבוהה', 'בינונית', or 'נמוכה'
+      : `אתה מפקח בטיחות המנתח תמונות. ספק תיאור קצר של בעיות הבטיחות הנראות בתמונה והצע רמת דחיפות. 
+      החזר את התשובה שלך בפורמט JSON עם שלושה מפתחות: 
+      1. 'topic' - כותרת קצרה מאוד (2-3 מילים לכל היותר) המסכמת את בעיית הבטיחות בעברית
+      2. 'description' - תיאור מפורט בעברית (25-50 מילים) של בעיית הבטיחות
+      3. 'urgency' - רמת הדחיפות, שחייבת להיות בדיוק אחד מהערכים הבאים: 'גבוהה', 'בינונית', או 'נמוכה'
       
-      Important: Make sure the topic is much shorter than the description and clearly different. The text should follow RTL (right-to-left) conventions for Hebrew, with proper spacing between words.`;
+      חשוב: ודא שהנושא קצר בהרבה מהתיאור ושונה בבירור ממנו. הטקסט צריך לעקוב אחר מוסכמות RTL (מימין לשמאל) עבור עברית, עם רווחים תקינים בין המילים.`;
+
+    console.log(`Analyzing image with model: ${model}`);
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -48,7 +56,7 @@ export async function analyzeImage(imageUrl: string, userDescription?: string): 
             content: [
               {
                 type: "text",
-                text: "Analyze this safety-related image and identify potential hazards or safety issues."
+                text: "נתח את תמונת הבטיחות הזו וזהה סכנות או בעיות בטיחות פוטנציאליות."
               },
               {
                 type: "image_url",
@@ -59,7 +67,7 @@ export async function analyzeImage(imageUrl: string, userDescription?: string): 
             ]
           }
         ],
-        model: "meta-llama/llama-4-scout-17b-16e-instruct",
+        model: model,
         temperature: 0.7,
         response_format: { type: "json_object" }
       })

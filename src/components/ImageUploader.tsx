@@ -10,7 +10,7 @@ import { UrgencyLevel, StatusType } from '@/types/report';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
-import { analyzeImage } from '@/utils/groqApi';
+import { analyzeImage, GroqModel } from '@/utils/groqApi';
 import { Spinner } from '@/components/ui/spinner';
 
 export function ImageUploader() {
@@ -20,6 +20,7 @@ export function ImageUploader() {
   const [description, setDescription] = useState('');
   const [urgency, setUrgency] = useState<UrgencyLevel>('בינונית');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [selectedModel, setSelectedModel] = useState<GroqModel>('meta-llama/llama-4-scout-17b-16e-instruct');
   const { addEntry } = useReport();
   const { toast } = useToast();
 
@@ -56,7 +57,7 @@ export function ImageUploader() {
 
     setIsAnalyzing(true);
     try {
-      const analysis = await analyzeImage(preview, description);
+      const analysis = await analyzeImage(preview, description, selectedModel);
       setDescription(analysis.description);
       setUrgency(analysis.suggestedUrgency);
       
@@ -138,6 +139,23 @@ export function ImageUploader() {
                 </div>
               )}
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="model">מודל לניתוח</Label>
+            <Select
+              value={selectedModel}
+              onValueChange={(value) => setSelectedModel(value as GroqModel)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="בחר מודל" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="meta-llama/llama-4-scout-17b-16e-instruct">Llama 4 Scout (17B)</SelectItem>
+                <SelectItem value="meta-llama/llama-3.1-8b-instruct">Llama 3.1 (8B)</SelectItem>
+                <SelectItem value="mixtral-8x7b-32768">Mixtral 8x7B</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
