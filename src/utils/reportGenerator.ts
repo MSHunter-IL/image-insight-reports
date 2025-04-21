@@ -21,11 +21,14 @@ const generateReportStyles = () => `
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 30px;
+    table-layout: fixed;
   }
   th, td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: right;
+    vertical-align: middle;
+    word-wrap: break-word;
   }
   th {
     background-color: #f2f2f2;
@@ -38,6 +41,8 @@ const generateReportStyles = () => `
     max-width: 100px;
     max-height: 100px;
     object-fit: cover;
+    display: block;
+    margin: 0 auto;
   }
   .logo {
     display: block;
@@ -52,6 +57,7 @@ const generateReportStyles = () => `
     padding: 2px 8px;
     border-radius: 4px;
     display: inline-block;
+    font-weight: bold;
   }
   .urgency-medium {
     background-color: #FFF8E1;
@@ -59,6 +65,7 @@ const generateReportStyles = () => `
     padding: 2px 8px;
     border-radius: 4px;
     display: inline-block;
+    font-weight: bold;
   }
   .urgency-low {
     background-color: #E8F5E9;
@@ -66,6 +73,7 @@ const generateReportStyles = () => `
     padding: 2px 8px;
     border-radius: 4px;
     display: inline-block;
+    font-weight: bold;
   }
   .status-pending {
     background-color: #ECEFF1;
@@ -73,6 +81,7 @@ const generateReportStyles = () => `
     padding: 2px 8px;
     border-radius: 4px;
     display: inline-block;
+    font-weight: bold;
   }
   .status-in-progress {
     background-color: #E3F2FD;
@@ -80,6 +89,7 @@ const generateReportStyles = () => `
     padding: 2px 8px;
     border-radius: 4px;
     display: inline-block;
+    font-weight: bold;
   }
   .status-completed {
     background-color: #E8F5E9;
@@ -87,6 +97,7 @@ const generateReportStyles = () => `
     padding: 2px 8px;
     border-radius: 4px;
     display: inline-block;
+    font-weight: bold;
   }
   .print-button {
     display: block;
@@ -102,6 +113,24 @@ const generateReportStyles = () => `
   .header {
     text-align: center;
     margin-bottom: 30px;
+  }
+  .company-details {
+    margin-bottom: 30px; 
+    border: 1px solid #ddd; 
+    padding: 15px; 
+    border-radius: 4px;
+  }
+  .company-details h2 {
+    margin-bottom: 10px;
+  }
+  .company-details-grid {
+    display: grid; 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 10px;
+  }
+  .date-container {
+    margin-bottom: 15px;
+    text-align: right;
   }
   @media print {
     .print-button {
@@ -128,9 +157,9 @@ export const generateReportContent = (entries: any[], companyDetails: CompanyDet
         <h1>סקר בטיחות</h1>
       </div>
 
-      <div class="company-details" style="margin-bottom: 30px; border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
-        <h2 style="margin-bottom: 10px;">פרטי החברה</h2>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+      <div class="company-details">
+        <h2>פרטי החברה</h2>
+        <div class="company-details-grid">
           <div>
             <strong>שם חברה:</strong> ${companyDetails.name || 'לא צוין'}
           </div>
@@ -146,16 +175,19 @@ export const generateReportContent = (entries: any[], companyDetails: CompanyDet
         </div>
       </div>
 
-      <p>תאריך: ${new Date().toLocaleDateString('he-IL')}</p>
+      <div class="date-container">
+        <strong>תאריך:</strong> ${new Date().toLocaleDateString('he-IL')}
+      </div>
+
       <table>
         <thead>
           <tr>
-            <th>#</th>
-            <th>תמונה</th>
-            <th>נושא</th>
-            <th>תיאור</th>
-            <th>דחיפות</th>
-            <th>סטטוס</th>
+            <th style="width: 5%;">#</th>
+            <th style="width: 15%;">תמונה</th>
+            <th style="width: 10%;">נושא</th>
+            <th style="width: 40%;">תיאור</th>
+            <th style="width: 15%;">דחיפות</th>
+            <th style="width: 15%;">סטטוס</th>
           </tr>
         </thead>
         <tbody>
@@ -174,12 +206,12 @@ export const generateReportContent = (entries: any[], companyDetails: CompanyDet
             
             return `
               <tr>
-                <td>${index + 1}</td>
-                <td><img src="${entry.imageUrl}" alt="${entry.topic}"></td>
+                <td style="text-align: center;">${index + 1}</td>
+                <td style="text-align: center;"><img src="${entry.imageUrl}" alt="${entry.topic}"></td>
                 <td>${entry.topic}</td>
                 <td>${entry.description}</td>
-                <td><span class="${urgencyClass}">${entry.urgency}</span></td>
-                <td><span class="${statusClass}">${entry.status}</span></td>
+                <td style="text-align: center;"><span class="${urgencyClass}">${entry.urgency}</span></td>
+                <td style="text-align: center;"><span class="${statusClass}">${entry.status}</span></td>
               </tr>
             `;
           }).join('')}
