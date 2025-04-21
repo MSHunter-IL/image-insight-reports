@@ -6,11 +6,6 @@ interface CompanyDetails {
   contactPhone: string;
 }
 
-interface SiteDetails {
-  id: string;
-  name: string;
-}
-
 const generateReportStyles = () => `
   body {
     font-family: Arial, sans-serif;
@@ -108,46 +103,14 @@ const generateReportStyles = () => `
     text-align: center;
     margin-bottom: 30px;
   }
-  .company-details {
-    margin-bottom: 30px;
-    border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 4px;
-  }
-  .company-details h2 {
-    margin-bottom: 10px;
-  }
-  .company-details-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
   @media print {
-    .print-button, .actions {
-      display: none !important;
-    }
-    body {
-      padding: 10mm;
-    }
-    @page {
-      margin: 15mm;
-      size: A4;
-    }
-    table {
-      page-break-inside: auto;
-    }
-    tr {
-      page-break-inside: avoid;
-      page-break-after: auto;
-    }
-    td img {
-      max-width: 80px;
-      max-height: 80px;
+    .print-button {
+      display: none;
     }
   }
 `;
 
-export const generateReportContent = (entries: any[], companyDetails: CompanyDetails, siteDetails?: SiteDetails) => {
+export const generateReportContent = (entries: any[], companyDetails: CompanyDetails) => {
   const htmlContent = `
     <!DOCTYPE html>
     <html lang="he" dir="rtl">
@@ -161,14 +124,13 @@ export const generateReportContent = (entries: any[], companyDetails: CompanyDet
     </head>
     <body>
       <div class="header">
-        <img src="/lovable-uploads/66ad0905-a1ce-4144-b307-bd9957ff43b7.png" alt="לוגו" class="logo" />
+        <img src="/lovable-uploads/26b58140-d09a-43b7-b02a-4365f061cc76.png" alt="לוגו" class="logo" />
         <h1>סקר בטיחות</h1>
-        ${siteDetails ? `<h2>אתר: ${siteDetails.name}</h2>` : ''}
       </div>
 
-      <div class="company-details">
-        <h2>פרטי החברה</h2>
-        <div class="company-details-grid">
+      <div class="company-details" style="margin-bottom: 30px; border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
+        <h2 style="margin-bottom: 10px;">פרטי החברה</h2>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
           <div>
             <strong>שם חברה:</strong> ${companyDetails.name || 'לא צוין'}
           </div>
@@ -235,11 +197,11 @@ export const generateReportContent = (entries: any[], companyDetails: CompanyDet
           buttons.forEach(btn => btn.style.display = 'none');
           
           const opt = {
-            margin: [15, 15, 15, 15],
+            margin: [0.5, 0.5, 0.5, 0.5],
             filename: 'safety-report.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
           };
 
           html2pdf().set(opt).from(element).save().then(() => {
