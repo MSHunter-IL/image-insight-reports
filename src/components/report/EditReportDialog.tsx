@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogFooter,
   DialogClose,
-  DialogTrigger  // Add this import
+  DialogTrigger
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,7 +48,7 @@ export function EditReportDialog({
               value={editEntry.topic}
               onChange={(e) => setEditEntry({
                 ...editEntry,
-                topic: e.target.value
+                topic: e.target.value || "ממצא חדש" // Ensure value is never empty
               })}
             />
           </div>
@@ -59,7 +59,7 @@ export function EditReportDialog({
               value={editEntry.description}
               onChange={(e) => setEditEntry({
                 ...editEntry,
-                description: e.target.value
+                description: e.target.value || "אין תיאור" // Ensure value is never empty
               })}
               rows={3}
             />

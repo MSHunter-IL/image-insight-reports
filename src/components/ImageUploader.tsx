@@ -32,7 +32,7 @@ export function ImageUploader() {
       if (!topic) {
         const nameParts = selectedFile.name.split('.');
         nameParts.pop(); // Remove extension
-        setTopic(nameParts.join('.').substring(0, 30));
+        setTopic(nameParts.join('.').substring(0, 30) || 'ממצא חדש'); // Ensure default value if empty
       }
       
       // Create preview URL
@@ -57,11 +57,11 @@ export function ImageUploader() {
     setIsAnalyzing(true);
     try {
       const analysis = await analyzeImage(preview, description);
-      setDescription(analysis.description);
-      setUrgency(analysis.suggestedUrgency);
+      setDescription(analysis.description || 'אין תיאור'); // Ensure default value if empty
+      setUrgency(analysis.suggestedUrgency || 'בינונית'); // Ensure default value if empty
       
-      // Use the dedicated topic from the analysis
-      setTopic(analysis.suggestedTopic);
+      // Use the dedicated topic from the analysis with fallback
+      setTopic(analysis.suggestedTopic || 'ממצא חדש'); // Ensure default value if empty
 
       toast({
         title: "ניתוח הושלם",
@@ -91,12 +91,11 @@ export function ImageUploader() {
       return;
     }
 
-    if (!topic) {
-      setTopic('ממצא בטיחות');
-    }
+    // Ensure topic has a default value if empty
+    const finalTopic = topic || 'ממצא בטיחות';
 
     addEntry({
-      topic: topic || 'ממצא בטיחות',
+      topic: finalTopic,
       description: description || 'אין תיאור',
       urgency,
       status: 'טרם טופל',
