@@ -1,4 +1,3 @@
-
 interface CompanyDetails {
   name: string;
   address: string;
@@ -232,7 +231,11 @@ const generateReportSummary = (entries: any[]) => {
   `;
 };
 
+import { useLogo } from '@/context/LogoContext'; // Add this line to get the custom logo
+
 export const generateReportContent = (entries: any[], companyDetails: CompanyDetails, includeSummary = false) => {
+  const { customLogo } = useLogo(); // Add this line to get the custom logo
+
   const htmlContent = `
     <!DOCTYPE html>
     <html lang="he" dir="rtl">
@@ -246,7 +249,7 @@ export const generateReportContent = (entries: any[], companyDetails: CompanyDet
     </head>
     <body>
       <div class="header">
-        <img src="/lovable-uploads/26b58140-d09a-43b7-b02a-4365f061cc76.png" alt="לוגו" class="logo" />
+        <img src="${customLogo || '/lovable-uploads/26b58140-d09a-43b7-b02a-4365f061cc76.png'}" alt="לוגו" class="logo" />
         <h1>סקר בטיחות</h1>
       </div>
 

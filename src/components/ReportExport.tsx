@@ -22,13 +22,13 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { LogoUploader } from './report/LogoUploader';
 
 interface ReportExportProps {
   companyDetails: CompanyDetails;
@@ -128,7 +128,9 @@ export function ReportExport({ companyDetails }: ReportExportProps) {
         <CardTitle>כלי סקר</CardTitle>
       </CardHeader>
       <CardContent>
-        <Accordion type="single" collapsible className="mb-4">
+        <LogoUploader />
+        
+        <Accordion type="single" collapsible className="mb-4 mt-4">
           <AccordionItem value="tools">
             <AccordionTrigger>כלי סקר זמינים</AccordionTrigger>
             <AccordionContent>
