@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -65,10 +66,13 @@ export function ImageUploader() {
         
         newFilesArray.push(newFile);
         if (newFilesArray.length === selectedFiles.length) {
-          setFiles(prevFiles => [...prevFiles, ...newFilesArray]);
-          if (prevFiles.length === 0) {
-            setActiveFileIndex(0);
-          }
+          setFiles(prevFiles => {
+            const updatedFiles = [...prevFiles, ...newFilesArray];
+            if (prevFiles.length === 0) {
+              setActiveFileIndex(0);
+            }
+            return updatedFiles;
+          });
         }
       };
       reader.readAsDataURL(file);
