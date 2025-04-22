@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -66,8 +65,8 @@ export function ImageUploader() {
         
         newFilesArray.push(newFile);
         if (newFilesArray.length === selectedFiles.length) {
-          setFiles(prev => [...prev, ...newFilesArray]);
-          if (prev.length === 0) {
+          setFiles(prevFiles => [...prevFiles, ...newFilesArray]);
+          if (prevFiles.length === 0) {
             setActiveFileIndex(0);
           }
         }
@@ -136,8 +135,8 @@ export function ImageUploader() {
   };
 
   const removeFile = (index: number) => {
-    setFiles(prev => {
-      const newFiles = [...prev];
+    setFiles(prevFiles => {
+      const newFiles = [...prevFiles];
       newFiles.splice(index, 1);
       
       // Update active index if needed
@@ -186,7 +185,6 @@ export function ImageUploader() {
     });
   };
 
-  // Drag and drop handlers
   const handleDragEnter = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -212,7 +210,6 @@ export function ImageUploader() {
     handleFilesSelect(e.dataTransfer.files);
   }, []);
 
-  // Auto-suggest descriptions based on previous entries
   const suggestedDescriptions = [
     "סדק בקיר המבנה המערבי",
     "חוסר במעקה בטיחות בגרם המדרגות",
