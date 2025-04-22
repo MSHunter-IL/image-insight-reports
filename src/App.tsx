@@ -1,30 +1,21 @@
 
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { LogoProvider } from "@/context/LogoContext";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import { Dashboard } from "./components/Dashboard";
+import { ReportProvider } from "./context/ReportContext";
+import { LogoProvider } from "./context/LogoContext";
+import { CompanyProvider } from "./context/CompanyContext";
 
-const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+function App() {
+  return (
+    <ReportProvider>
       <LogoProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <CompanyProvider>
+          <Dashboard />
+          <Toaster />
+        </CompanyProvider>
       </LogoProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </ReportProvider>
+  );
+}
 
 export default App;

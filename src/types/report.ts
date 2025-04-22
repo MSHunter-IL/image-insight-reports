@@ -15,6 +15,7 @@ export interface ReportEntry {
   category?: ImageCategory;
   internalNotes?: string;
   version?: number;
+  companyId?: string; // Reference to the company
 }
 
 export interface SurveyTool {
@@ -26,6 +27,7 @@ export interface SurveyTool {
 }
 
 export interface CompanyDetails {
+  id: string;
   name: string;
   address: string;
   contactName: string;
@@ -33,4 +35,5 @@ export interface CompanyDetails {
   contactEmail?: string;
   surveyDate?: Date;
   surveyStatus?: string;
+  surveyLocation?: string; // New field for site location
 }
