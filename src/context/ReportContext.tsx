@@ -5,10 +5,11 @@ import { useToast } from '@/components/ui/use-toast';
 
 interface ReportContextType {
   entries: ReportEntry[];
-  addEntry: (entry: Omit<ReportEntry, 'id' | 'timestamp'>) => void;
+  addEntry: (entry: Omit<ReportEntry, 'id' | 'timestamp' | 'version'>) => void;
   updateEntry: (id: string, updates: Partial<ReportEntry>) => void;
   deleteEntry: (id: string) => void;
   clearAllEntries: () => void;
+  updateInternalNotes: (id: string, notes: string) => void;
 }
 
 const ReportContext = createContext<ReportContextType | undefined>(undefined);
@@ -42,11 +43,38 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
     }
   }, [entries]);
 
-  const addEntry = (entry: Omit<ReportEntry, 'id' | 'timestamp'>) => {
+  // Check for reports open for more than 7 days
+  useEffect(() => {
+    const checkOldEntries = () => {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      
+      const openOldEntries = entries.filter(entry => 
+        entry.status === 'טרם טופל' && 
+        entry.timestamp < sevenDaysAgo
+      );
+      
+      if (openOldEntries.length > 0) {
+        toast({
+          title: "תזכורת",
+          description: `יש ${openOldEntries.length} סקרים פתוחים מעל 7 ימים`,
+        });
+      }
+    };
+    
+    // Check on load and set up daily check
+    checkOldEntries();
+    const interval = setInterval(checkOldEntries, 24 * 60 * 60 * 1000); // Check daily
+    
+    return () => clearInterval(interval);
+  }, [entries, toast]);
+
+  const addEntry = (entry: Omit<ReportEntry, 'id' | 'timestamp' | 'version'>) => {
     const newEntry: ReportEntry = {
       ...entry,
       id: crypto.randomUUID(),
-      timestamp: new Date()
+      timestamp: new Date(),
+      version: 1
     };
     
     setEntries(prev => [...prev, newEntry]);
@@ -59,13 +87,29 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
   const updateEntry = (id: string, updates: Partial<ReportEntry>) => {
     setEntries(prev => 
       prev.map(entry => 
-        entry.id === id ? { ...entry, ...updates } : entry
+        entry.id === id 
+          ? { 
+              ...entry, 
+              ...updates,
+              version: (entry.version || 1) + 1 // Increment version
+            } 
+          : entry
       )
     );
     toast({
       title: "עודכן בהצלחה",
       description: "הפריט עודכן בדוח",
     });
+  };
+
+  const updateInternalNotes = (id: string, notes: string) => {
+    setEntries(prev => 
+      prev.map(entry => 
+        entry.id === id 
+          ? { ...entry, internalNotes: notes } 
+          : entry
+      )
+    );
   };
 
   const deleteEntry = (id: string) => {
@@ -91,7 +135,8 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
       addEntry, 
       updateEntry, 
       deleteEntry,
-      clearAllEntries
+      clearAllEntries,
+      updateInternalNotes
     }}>
       {children}
     </ReportContext.Provider>

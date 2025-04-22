@@ -1,6 +1,7 @@
 
 export type UrgencyLevel = 'גבוהה' | 'בינונית' | 'נמוכה';
 export type StatusType = 'טרם טופל' | 'בטיפול' | 'טופל';
+export type ImageCategory = 'חוץ' | 'פנים' | 'מסמכים' | 'תשתיות' | 'אחר';
 
 export interface ReportEntry {
   id: string;
@@ -11,4 +12,25 @@ export interface ReportEntry {
   imageUrl: string;
   imageFile?: File;
   timestamp: Date;
+  category?: ImageCategory;
+  internalNotes?: string;
+  version?: number;
+}
+
+export interface SurveyTool {
+  id: string;
+  name: string;
+  type: string;
+  downloadCount: number;
+  lastDownload?: Date;
+}
+
+export interface CompanyDetails {
+  name: string;
+  address: string;
+  contactName: string;
+  contactPhone: string;
+  contactEmail?: string;
+  surveyDate?: Date;
+  surveyStatus?: string;
 }

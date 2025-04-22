@@ -1,0 +1,91 @@
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Add smooth transitions to all form elements */
+input, select, textarea, button {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Add a transition for content loading */
+.content-load {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.content-loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Better file drag & drop styling */
+.drag-active {
+  border-color: #4f46e5 !important;
+  background-color: rgba(79, 70, 229, 0.1) !important;
+}
+
+/* Image thumbnail hover effects */
+.thumbnail-hover {
+  transition: transform 0.2s ease;
+}
+
+.thumbnail-hover:hover {
+  transform: scale(1.05);
+}
+
+/* Improve tooltip visibility */
+.tooltip {
+  z-index: 50 !important;
+}
+
+/* Smooth form field validation transitions */
+.field-valid {
+  border-color: rgb(34, 197, 94) !important;
+  transition: border-color 0.2s ease;
+}
+
+.field-invalid {
+  border-color: rgb(239, 68, 68) !important;
+  transition: border-color 0.2s ease;
+}
+
+/* Page transitions */
+.page-enter {
+  opacity: 0;
+}
+
+.page-enter-active {
+  opacity: 1;
+  transition: opacity 300ms;
+}
+
+.page-exit {
+  opacity: 1;
+}
+
+.page-exit-active {
+  opacity: 0;
+  transition: opacity 300ms;
+}
+
+/* RTL specific adjustments for better UI in right-to-left mode */
+[dir="rtl"] .mr-2 {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+[dir="rtl"] .ml-2 {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
