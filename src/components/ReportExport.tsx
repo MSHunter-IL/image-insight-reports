@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useReport } from '@/context/ReportContext';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileDown, ClipboardList, FileText, FilePdf, History, Plus } from 'lucide-react';
+import { FileDown, ClipboardList, FileText, File, History, Plus } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { generateReportContent } from '@/utils/reportGenerator';
 import { ClearAllConfirmation } from './report/ClearAllConfirmation';
@@ -273,7 +272,7 @@ export function ReportExport({ companyDetails }: ReportExportProps) {
                   disabled={entries.length === 0}
                   variant="outline"
                 >
-                  <FilePdf className="ml-2 h-4 w-4" />
+                  <File className="ml-2 h-4 w-4" />
                   הורד כ-PDF
                 </Button>
               </TooltipTrigger>

@@ -11,7 +11,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { Comment } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';  // Changed from Comment to MessageSquare
 import { ReportEntry } from '@/types/report';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -42,7 +42,7 @@ export function InternalNotesDialog({ entry, onSave }: InternalNotesDialogProps)
           size="icon"
           className="relative"
         >
-          <Comment className="h-4 w-4" />
+          <MessageSquare className="h-4 w-4" />
           {entry.internalNotes && (
             <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-primary" />
           )}
