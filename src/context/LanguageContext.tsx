@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 
-type SupportedLanguage = 'en' | 'he' | 'es';
+// Export the SupportedLanguage type
+export type SupportedLanguage = 'en' | 'he' | 'es';
 
 type LanguageContextType = {
   language: SupportedLanguage;
@@ -51,6 +52,10 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
       'auth.checkEmailDescription': 'We sent you a confirmation email. Please check your inbox.',
       'auth.signout': 'Sign Out',
       'copyright': 'All rights reserved to Daniel Eliyahu Bellelli',
+      'language': 'Language',
+      'english': 'English',
+      'hebrew': 'Hebrew',
+      'spanish': 'Spanish',
     },
     he: {
       'safety.survey': 'סקר בטיחות',
@@ -82,6 +87,10 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
       'auth.checkEmailDescription': 'שלחנו לך אימייל אישור. אנא בדוק את תיבת הדואר הנכנס שלך.',
       'auth.signout': 'התנתק',
       'copyright': 'כל הזכויות שמורות לדניאל אליהו בללי',
+      'language': 'שפה',
+      'english': 'אנגלית',
+      'hebrew': 'עברית',
+      'spanish': 'ספרדית',
     },
     es: {
       'safety.survey': 'Encuesta de Seguridad',
@@ -113,6 +122,10 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
       'auth.checkEmailDescription': 'Te hemos enviado un correo de confirmación. Por favor revisa tu bandeja de entrada.',
       'auth.signout': 'Cerrar sesión',
       'copyright': 'Todos los derechos reservados a Daniel Eliyahu Bellelli',
+      'language': 'Idioma',
+      'english': 'Inglés',
+      'hebrew': 'Hebreo',
+      'spanish': 'Español',
     },
   };
 
