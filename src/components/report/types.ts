@@ -18,6 +18,7 @@ export interface SurveyToolsProps {
 export interface ReportActionsProps {
   onGenerateReport: (includeSummary?: boolean) => void;
   disabled: boolean;
+  companyDetails: CompanyDetails; // Added companyDetails for email functionality
 }
 
 export interface ReportExportProps {

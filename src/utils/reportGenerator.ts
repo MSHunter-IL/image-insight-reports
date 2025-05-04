@@ -1,13 +1,58 @@
 
 import { ReportEntry, CompanyDetails } from '@/types/report';
-import { useLogo } from '@/context/LogoContext';
 import { generateReportHtml } from './report/html-template';
 
+// Separate the report generation logic from the UI component
 export const generateReportContent = (
   entries: ReportEntry[], 
   companyDetails: CompanyDetails, 
+  includeSummary = false,
+  customLogo?: string | null
+) => {
+  return generateReportHtml(entries, companyDetails, includeSummary, customLogo);
+};
+
+// Function to generate and download PDF report
+export const generatePdfReport = (
+  entries: ReportEntry[],
+  companyDetails: CompanyDetails,
+  includeSummary = false,
+  customLogo?: string | null
+) => {
+  const htmlContent = generateReportContent(entries, companyDetails, includeSummary, customLogo);
+  
+  const reportWindow = window.open('', '_blank');
+  if (reportWindow) {
+    reportWindow.document.write(htmlContent);
+    reportWindow.document.close();
+    
+    // Trigger PDF download using html2pdf from the new window
+    reportWindow.addEventListener('load', () => {
+      reportWindow.downloadPDF();
+    });
+  }
+  
+  return reportWindow;
+};
+
+// Function to send report via email
+export const emailReport = async (
+  entries: ReportEntry[],
+  companyDetails: CompanyDetails,
   includeSummary = false
 ) => {
-  const { customLogo } = useLogo();
-  return generateReportHtml(entries, companyDetails, includeSummary, customLogo);
+  if (!companyDetails.contactEmail) {
+    throw new Error('No email address provided');
+  }
+  
+  // In a real implementation, this would send the email via a server API
+  // Here we're just simulating the action
+  
+  // Simulate API call delay
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return {
+    success: true,
+    message: `הדוח נשלח בהצלחה אל ${companyDetails.contactEmail}`
+  };
 };

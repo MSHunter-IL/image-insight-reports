@@ -10,6 +10,7 @@ interface ReportContextType {
   deleteEntry: (id: string) => void;
   clearAllEntries: () => void;
   updateInternalNotes: (id: string, notes: string) => void;
+  markAllAsTreated: () => void; // Added new function
 }
 
 const ReportContext = createContext<ReportContextType | undefined>(undefined);
@@ -128,6 +129,19 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
       description: "כל הפריטים הוסרו מהדוח",
     });
   };
+  
+  // New function to mark all entries as treated
+  const markAllAsTreated = () => {
+    if (entries.length === 0) return;
+    
+    setEntries(prev => 
+      prev.map(entry => ({ 
+        ...entry, 
+        status: 'טופל' as StatusType,
+        version: (entry.version || 1) + 1
+      }))
+    );
+  };
 
   return (
     <ReportContext.Provider value={{ 
@@ -136,7 +150,8 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
       updateEntry, 
       deleteEntry,
       clearAllEntries,
-      updateInternalNotes
+      updateInternalNotes,
+      markAllAsTreated
     }}>
       {children}
     </ReportContext.Provider>

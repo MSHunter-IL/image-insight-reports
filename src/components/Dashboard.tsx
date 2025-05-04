@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ImageUploader } from './ImageUploader';
 import { ReportList } from './ReportList';
@@ -39,13 +38,8 @@ export function Dashboard() {
 
   return (
     <div className="container py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">סקר בטיחות</h1>
-        <img 
-          src="/lovable-uploads/26b58140-d09a-43b7-b02a-4365f061cc76.png"
-          alt="לוגו"
-          className="h-16 object-contain"
-        />
+      <div className="flex justify-center items-center mb-6">
+        <h1 className="text-3xl font-bold">סקר בטיחות</h1>
       </div>
       
       <Card className="mb-6">

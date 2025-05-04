@@ -23,17 +23,65 @@ export function LogoUploader() {
       return;
     }
 
-    // Convert to base64
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64Logo = reader.result as string;
-      setCustomLogo(base64Logo);
+    // Optimize the logo for the report
+    const optimizeLogo = (file: File): Promise<string> => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            // Set optimal dimensions for report header
+            const maxWidth = 300;
+            const maxHeight = 100;
+            
+            let width = img.width;
+            let height = img.height;
+            
+            // Calculate new dimensions while maintaining aspect ratio
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
+            }
+            
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height;
+              height = maxHeight;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, width, height);
+              const optimizedDataUrl = canvas.toDataURL('image/png');
+              resolve(optimizedDataUrl);
+            } else {
+              // Fallback if canvas context isn't available
+              resolve(e.target?.result as string);
+            }
+          };
+          img.src = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+      });
+    };
+
+    try {
+      const optimizedLogo = await optimizeLogo(file);
+      setCustomLogo(optimizedLogo);
       toast({
         title: "הלוגו הועלה בהצלחה",
         description: "הלוגו החדש יופיע בכל הדוחות החדשים"
       });
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      toast({
+        title: "שגיאה",
+        description: "אירעה שגיאה בעת עיבוד הלוגו",
+        variant: "destructive"
+      });
+    }
   }, [setCustomLogo, toast]);
 
   return (
