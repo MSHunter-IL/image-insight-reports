@@ -19,22 +19,27 @@ import {
 } from "@/components/ui/table";
 import { StatusBadge } from '@/components/report/StatusBadge';
 import { UrgencyBadge } from '@/components/report/UrgencyBadge';
+import { useLanguage } from '@/context/LanguageContext';
+import { generateReportContent } from '@/utils/reportGenerator';
+import { useLogo } from '@/context/LogoContext';
 
 export function CompanyDashboard() {
   const { selectedCompany, companies } = useCompany();
   const { entries } = useReport();
   const { toast } = useToast();
+  const { t } = useLanguage();
+  const { customLogo } = useLogo();
   const [selectedTab, setSelectedTab] = useState<'info' | 'reports'>('info');
 
   if (!selectedCompany) {
     return (
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>דשבורד חברה</CardTitle>
-          <CardDescription>לא נבחרה חברה</CardDescription>
+          <CardTitle>{t('company.dashboard')}</CardTitle>
+          <CardDescription>{t('no.company.selected')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <p>אנא בחר חברה מהרשימה למעלה כדי לצפות בדשבורד שלה.</p>
+          <p>{t('select.company.view')}</p>
         </CardContent>
       </Card>
     );
@@ -55,20 +60,45 @@ export function CompanyDashboard() {
   const mediumUrgencyCount = companyEntries.filter(e => e.urgency === 'בינונית').length;
   const lowUrgencyCount = companyEntries.filter(e => e.urgency === 'נמוכה').length;
 
+  const handleGenerateReport = () => {
+    if (companyEntries.length === 0) {
+      toast({
+        title: t('no.data'),
+        description: t('no.survey.items'),
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const htmlContent = generateReportContent(companyEntries, selectedCompany, true, customLogo);
+    
+    const reportWindow = window.open('', '_blank');
+    if (reportWindow) {
+      reportWindow.document.write(htmlContent);
+      reportWindow.document.close();
+      reportWindow.focus();
+
+      toast({
+        title: t('survey.generated'),
+        description: t('survey.opened'),
+      });
+    }
+  };
+
   return (
     <Card className="mb-6">
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
             <CardTitle className="flex items-center">
-              <Building className="ml-2 h-5 w-5" />
+              <Building className="mr-2 h-5 w-5" />
               {selectedCompany.name}
-              <Badge variant="outline" className="mr-2">
-                {selectedCompany.surveyLocation || 'ללא אתר'}
+              <Badge variant="outline" className="ml-2">
+                {selectedCompany.surveyLocation || t('not.specified')}
               </Badge>
             </CardTitle>
             <CardDescription>
-              דשבורד חברה - סקרים ופרטי התקשרות
+              {t('company.dashboard')}
             </CardDescription>
           </div>
           <div className="flex gap-2">
@@ -77,16 +107,16 @@ export function CompanyDashboard() {
               size="sm"
               onClick={() => setSelectedTab('info')}
             >
-              <Building className="ml-1 h-4 w-4" />
-              פרטי חברה
+              <Building className="mr-1 h-4 w-4" />
+              {t('company.details')}
             </Button>
             <Button 
               variant={selectedTab === 'reports' ? 'default' : 'outline'} 
               size="sm"
               onClick={() => setSelectedTab('reports')}
             >
-              <List className="ml-1 h-4 w-4" />
-              סקרים
+              <List className="mr-1 h-4 w-4" />
+              {t('report.items')}
             </Button>
           </div>
         </div>
@@ -97,30 +127,30 @@ export function CompanyDashboard() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <h3 className="text-lg font-medium mb-2">פרטי חברה</h3>
+                <h3 className="text-lg font-medium mb-2">{t('company.details')}</h3>
                 <div className="space-y-2">
-                  <p><strong>שם חברה:</strong> {selectedCompany.name}</p>
-                  <p><strong>אתר:</strong> {selectedCompany.surveyLocation || 'לא צוין'}</p>
-                  <p><strong>כתובת:</strong> {selectedCompany.address || 'לא צוין'}</p>
+                  <p><strong>{t('company.name')}:</strong> {selectedCompany.name}</p>
+                  <p><strong>{t('site')}:</strong> {selectedCompany.surveyLocation || t('not.specified')}</p>
+                  <p><strong>{t('company.address')}:</strong> {selectedCompany.address || t('not.specified')}</p>
                 </div>
               </div>
               
               <div>
-                <h3 className="text-lg font-medium mb-2">פרטי קשר</h3>
+                <h3 className="text-lg font-medium mb-2">{t('contact.details')}</h3>
                 <div className="space-y-2">
-                  <p><strong>איש קשר:</strong> {selectedCompany.contactName || 'לא צוין'}</p>
-                  <p><strong>טלפון:</strong> {selectedCompany.contactPhone || 'לא צוין'}</p>
-                  <p><strong>אימייל:</strong> {selectedCompany.contactEmail || 'לא צוין'}</p>
+                  <p><strong>{t('contact.person')}:</strong> {selectedCompany.contactName || t('not.specified')}</p>
+                  <p><strong>{t('contact.phone')}:</strong> {selectedCompany.contactPhone || t('not.specified')}</p>
+                  <p><strong>{t('contact.email')}:</strong> {selectedCompany.contactEmail || t('not.specified')}</p>
                 </div>
               </div>
             </div>
             
             <div className="mt-6">
-              <h3 className="text-lg font-medium mb-4">סיכום סקרים</h3>
+              <h3 className="text-lg font-medium mb-4">{t('survey.summary')}</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">סה"כ ממצאים</CardTitle>
+                    <CardTitle className="text-sm">{t('total.findings')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-2xl font-bold">{companyEntries.length}</p>
@@ -129,7 +159,7 @@ export function CompanyDashboard() {
                 
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">ממתינים לטיפול</CardTitle>
+                    <CardTitle className="text-sm">{t('pending')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-2xl font-bold">{pendingCount}</p>
@@ -138,7 +168,7 @@ export function CompanyDashboard() {
                 
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">הושלמו</CardTitle>
+                    <CardTitle className="text-sm">{t('resolved')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-2xl font-bold">{completedCount}</p>
@@ -147,7 +177,7 @@ export function CompanyDashboard() {
                 
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">דחיפות גבוהה</CardTitle>
+                    <CardTitle className="text-sm">{t('high.urgency')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-2xl font-bold text-red-600">{highUrgencyCount}</p>
@@ -156,7 +186,7 @@ export function CompanyDashboard() {
                 
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">דחיפות בינונית</CardTitle>
+                    <CardTitle className="text-sm">{t('medium.urgency')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-2xl font-bold text-orange-500">{mediumUrgencyCount}</p>
@@ -165,7 +195,7 @@ export function CompanyDashboard() {
                 
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm">דחיפות נמוכה</CardTitle>
+                    <CardTitle className="text-sm">{t('low.urgency')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-2xl font-bold text-green-600">{lowUrgencyCount}</p>
@@ -178,17 +208,17 @@ export function CompanyDashboard() {
         
         {selectedTab === 'reports' && (
           <div>
-            <h3 className="text-lg font-medium mb-4">רשימת ממצאים</h3>
+            <h3 className="text-lg font-medium mb-4">{t('findings.list')}</h3>
             {companyEntries.length > 0 ? (
               <Table>
-                <TableCaption>רשימת ממצאים לחברה {selectedCompany.name}</TableCaption>
+                <TableCaption>{t('findings.list')} {selectedCompany.name}</TableCaption>
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[100px]">#</TableHead>
-                    <TableHead>נושא</TableHead>
-                    <TableHead>תאריך</TableHead>
-                    <TableHead>דחיפות</TableHead>
-                    <TableHead>סטטוס</TableHead>
+                    <TableHead>{t('topic')}</TableHead>
+                    <TableHead>{t('date')}</TableHead>
+                    <TableHead>{t('urgency')}</TableHead>
+                    <TableHead>{t('status')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -196,7 +226,7 @@ export function CompanyDashboard() {
                     <TableRow key={entry.id}>
                       <TableCell className="font-medium">{index + 1}</TableCell>
                       <TableCell>{entry.topic}</TableCell>
-                      <TableCell>{new Date(entry.timestamp).toLocaleDateString('he-IL')}</TableCell>
+                      <TableCell>{new Date(entry.timestamp).toLocaleDateString()}</TableCell>
                       <TableCell><UrgencyBadge urgency={entry.urgency} /></TableCell>
                       <TableCell><StatusBadge status={entry.status} /></TableCell>
                     </TableRow>
@@ -204,16 +234,21 @@ export function CompanyDashboard() {
                 </TableBody>
               </Table>
             ) : (
-              <p className="text-muted-foreground text-center py-8">אין ממצאים לחברה זו</p>
+              <p className="text-muted-foreground text-center py-8">{t('no.items.company')}</p>
             )}
           </div>
         )}
       </CardContent>
       
       <CardFooter className="justify-end">
-        <Button variant="outline" className="ml-2">
-          <FileText className="ml-2 h-4 w-4" />
-          הפק סקר לחברה זו
+        <Button 
+          variant="outline" 
+          className="ml-2"
+          onClick={handleGenerateReport}
+          disabled={companyEntries.length === 0}
+        >
+          <FileText className="mr-2 h-4 w-4" />
+          {t('export.for.company')}
         </Button>
       </CardFooter>
     </Card>

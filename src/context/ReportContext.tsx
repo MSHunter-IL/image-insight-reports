@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ReportEntry, UrgencyLevel, StatusType } from '@/types/report';
 import { useToast } from '@/components/ui/use-toast';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface ReportContextType {
   entries: ReportEntry[];
@@ -10,7 +11,7 @@ interface ReportContextType {
   deleteEntry: (id: string) => void;
   clearAllEntries: () => void;
   updateInternalNotes: (id: string, notes: string) => void;
-  markAllAsTreated: () => void; // Added new function
+  markAllAsTreated: () => void;
 }
 
 const ReportContext = createContext<ReportContextType | undefined>(undefined);
@@ -18,6 +19,7 @@ const ReportContext = createContext<ReportContextType | undefined>(undefined);
 export function ReportProvider({ children }: { children: React.ReactNode }) {
   const [entries, setEntries] = useState<ReportEntry[]>([]);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   // Load from localStorage on init
   useEffect(() => {
@@ -57,8 +59,8 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
       
       if (openOldEntries.length > 0) {
         toast({
-          title: "תזכורת",
-          description: `יש ${openOldEntries.length} סקרים פתוחים מעל 7 ימים`,
+          title: t("reminder"),
+          description: `${t("open.reports.msg")} ${openOldEntries.length} ${t("open.reports")}`,
         });
       }
     };
@@ -68,7 +70,7 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
     const interval = setInterval(checkOldEntries, 24 * 60 * 60 * 1000); // Check daily
     
     return () => clearInterval(interval);
-  }, [entries, toast]);
+  }, [entries, toast, t]);
 
   const addEntry = (entry: Omit<ReportEntry, 'id' | 'timestamp' | 'version'>) => {
     const newEntry: ReportEntry = {
@@ -80,8 +82,8 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
     
     setEntries(prev => [...prev, newEntry]);
     toast({
-      title: "נוסף לדוח",
-      description: `ממצא חדש: ${entry.topic}`,
+      title: t("item.added"),
+      description: `${t("new.finding")}: ${entry.topic}`,
     });
   };
 
@@ -98,8 +100,8 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
       )
     );
     toast({
-      title: "עודכן בהצלחה",
-      description: "הפריט עודכן בדוח",
+      title: t("item.updated"),
+      description: t("item.updated.msg"),
     });
   };
 
@@ -116,8 +118,8 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
   const deleteEntry = (id: string) => {
     setEntries(prev => prev.filter(entry => entry.id !== id));
     toast({
-      title: "הוסר מהדוח",
-      description: "הפריט הוסר בהצלחה",
+      title: t("item.removed"),
+      description: t("item.removed.msg"),
     });
   };
 
@@ -125,12 +127,12 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
     setEntries([]);
     localStorage.removeItem('reportEntries');
     toast({
-      title: "הדוח נוקה",
-      description: "כל הפריטים הוסרו מהדוח",
+      title: t("report.cleared"),
+      description: t("all.items.removed"),
     });
   };
   
-  // New function to mark all entries as treated
+  // Function to mark all entries as treated
   const markAllAsTreated = () => {
     if (entries.length === 0) return;
     
@@ -141,6 +143,11 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
         version: (entry.version || 1) + 1
       }))
     );
+
+    toast({
+      title: t("success"),
+      description: t("all.items.marked.as.treated"),
+    });
   };
 
   return (

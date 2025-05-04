@@ -4,17 +4,20 @@ import { Dashboard } from "./components/Dashboard";
 import { ReportProvider } from "./context/ReportContext";
 import { LogoProvider } from "./context/LogoContext";
 import { CompanyProvider } from "./context/CompanyContext";
+import { LanguageProvider } from "./context/LanguageContext";
 
 function App() {
   return (
-    <ReportProvider>
-      <LogoProvider>
-        <CompanyProvider>
-          <Dashboard />
-          <Toaster />
-        </CompanyProvider>
-      </LogoProvider>
-    </ReportProvider>
+    <LanguageProvider>
+      <ReportProvider>
+        <LogoProvider>
+          <CompanyProvider>
+            <Dashboard />
+            <Toaster />
+          </CompanyProvider>
+        </LogoProvider>
+      </ReportProvider>
+    </LanguageProvider>
   );
 }
 

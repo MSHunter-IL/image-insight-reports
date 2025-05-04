@@ -26,9 +26,9 @@ export const generatePdfReport = (
     reportWindow.document.write(htmlContent);
     reportWindow.document.close();
     
-    // Trigger PDF download using html2pdf from the new window
+    // Use normal print functionality instead of non-existent downloadPDF
     reportWindow.addEventListener('load', () => {
-      reportWindow.downloadPDF();
+      reportWindow.print();
     });
   }
   

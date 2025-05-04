@@ -1,167 +1,116 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { FileText, ClipboardList, File, Mail, Check } from 'lucide-react';
-import { ReportActionsProps } from './types';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Loader2, FileText, Download, Mail, CheckSquare } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { generatePdfReport, emailReport } from '@/utils/reportGenerator';
 import { useReport } from '@/context/ReportContext';
+import { emailReport } from '@/utils/reportGenerator';
 import { CompanyDetails } from '@/types/report';
+import { ReportActionsProps } from './types';
+import { useLanguage } from '@/context/LanguageContext';
 
-export function ReportActions({ onGenerateReport, disabled, companyDetails }: ReportActionsProps) {
+export function ReportActions({ 
+  onGenerateReport, 
+  disabled,
+  companyDetails 
+}: ReportActionsProps) {
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
   const { toast } = useToast();
-  const { entries, markAllAsTreated } = useReport();
-  
-  const handlePdfDownload = async () => {
-    try {
-      generatePdfReport(entries, companyDetails, true);
-      toast({
-        title: "הורדת PDF",
-        description: "קובץ ה-PDF מתחיל להיווצר ויורד בקרוב",
-      });
-    } catch (error) {
-      toast({
-        title: "שגיאה",
-        description: "אירעה שגיאה בהורדת קובץ ה-PDF",
-        variant: "destructive"
-      });
-    }
-  };
-  
-  const handleSendEmail = async () => {
+  const { markAllAsTreated } = useReport();
+  const { t } = useLanguage();
+
+  const handleEmailSend = async () => {
     if (!companyDetails.contactEmail) {
       toast({
-        title: "שגיאה",
-        description: "לא הוזנה כתובת אימייל לשליחה",
+        title: "Error",
+        description: "No email address provided for this company",
         variant: "destructive"
       });
       return;
     }
+
+    setIsSendingEmail(true);
     
     try {
-      const result = await emailReport(entries, companyDetails);
+      const result = await emailReport([], companyDetails, false);
+      
       toast({
-        title: "הדוח נשלח בהצלחה",
-        description: `הדוח נשלח אל ${companyDetails.contactEmail}`,
+        title: "Email Sent",
+        description: result.message,
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
-        title: "שגיאה",
-        description: "אירעה שגיאה בשליחת האימייל",
+        title: "Error",
+        description: error.message || "Failed to send email",
         variant: "destructive"
       });
+    } finally {
+      setIsSendingEmail(false);
     }
   };
-  
+
   const handleMarkAllAsTreated = () => {
     markAllAsTreated();
     toast({
-      title: "כל הפריטים סומנו כטופלו",
-      description: "סטטוס כל הפריטים עודכן ל'טופל'",
+      title: t('success'),
+      description: t('all.items.marked'),
     });
   };
 
   return (
-    <div className="space-y-2">
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              onClick={() => onGenerateReport()} 
-              className="w-full"
-              disabled={disabled}
-            >
-              <FileText className="ml-2 h-4 w-4" />
-              הפק סקר
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>הצג את הסקר בחלון חדש</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-2">
+        <Button 
+          variant="outline" 
+          className="w-full sm:w-auto" 
+          onClick={() => onGenerateReport(false)} 
+          disabled={disabled}
+        >
+          <FileText className="h-4 w-4 mr-2" />
+          {t('generate.report')}
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          className="w-full sm:w-auto" 
+          onClick={() => onGenerateReport(true)} 
+          disabled={disabled}
+        >
+          <FileText className="h-4 w-4 mr-2" />
+          {t('generate.with.summary')}
+        </Button>
+      </div>
       
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              onClick={() => onGenerateReport(true)} 
-              className="w-full"
-              disabled={disabled}
-              variant="secondary"
-            >
-              <ClipboardList className="ml-2 h-4 w-4" />
-              הפק סקר עם ניתוח וסיכום
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>הצג את הסקר עם ניתוח וסיכום בחלון חדש</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              onClick={handlePdfDownload} 
-              className="w-full"
-              disabled={disabled}
-              variant="outline"
-            >
-              <File className="ml-2 h-4 w-4" />
-              הורד כ-PDF
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>הורד את הסקר כקובץ PDF</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              onClick={handleSendEmail} 
-              className="w-full"
-              disabled={disabled || !companyDetails.contactEmail}
-              variant="default"
-            >
-              <Mail className="ml-2 h-4 w-4" />
-              שלח במייל
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{companyDetails.contactEmail ? `שלח לכתובת: ${companyDetails.contactEmail}` : "לא הוגדרה כתובת מייל"}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              onClick={handleMarkAllAsTreated} 
-              className="w-full"
-              disabled={disabled}
-              variant="outline"
-            >
-              <Check className="ml-2 h-4 w-4" />
-              סמן הכל כטופל
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>סמן את כל פריטי הדוח כטופלו</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div className="flex flex-wrap gap-2">
+        <Button 
+          variant="outline" 
+          className="w-full sm:w-auto" 
+          onClick={handleEmailSend} 
+          disabled={disabled || isSendingEmail || !companyDetails.contactEmail}
+        >
+          {isSendingEmail ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              {t('sending')}...
+            </>
+          ) : (
+            <>
+              <Mail className="h-4 w-4 mr-2" />
+              {t('send.email')}
+            </>
+          )}
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          className="w-full sm:w-auto" 
+          onClick={handleMarkAllAsTreated}
+          disabled={disabled}
+        >
+          <CheckSquare className="h-4 w-4 mr-2" />
+          {t('mark.all.as.treated')}
+        </Button>
+      </div>
     </div>
   );
 }
