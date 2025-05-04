@@ -2,7 +2,7 @@
 import React from 'react';
 import { useLanguage, SupportedLanguage } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { Translate } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,7 +23,7 @@ export function LanguageSelector() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm">
-          <Translate className="h-4 w-4 mr-2" />
+          <Globe className="h-4 w-4 mr-2" />
           {t('language')}
         </Button>
       </DropdownMenuTrigger>

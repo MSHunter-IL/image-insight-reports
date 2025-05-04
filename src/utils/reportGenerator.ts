@@ -26,7 +26,7 @@ export const generatePdfReport = (
     reportWindow.document.write(htmlContent);
     reportWindow.document.close();
     
-    // Use normal print functionality instead of non-existent downloadPDF
+    // Use browser's print functionality to generate PDF
     reportWindow.addEventListener('load', () => {
       reportWindow.print();
     });
