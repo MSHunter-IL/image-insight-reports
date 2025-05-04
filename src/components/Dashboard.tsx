@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { CompanyDetails } from '@/types/report';
 
 export function Dashboard() {
   const [companyName, setCompanyName] = useState('');
@@ -23,6 +24,18 @@ export function Dashboard() {
   const [contactEmail, setContactEmail] = useState('');
   const [surveyDate, setSurveyDate] = useState<Date | undefined>(new Date());
   const [surveyStatus, setSurveyStatus] = useState('פתוח');
+
+  // Create a proper CompanyDetails object that includes the required id property
+  const companyDetails: CompanyDetails = {
+    id: 'local-form', // Adding a default id for the form data
+    name: companyName,
+    address,
+    contactName,
+    contactPhone,
+    contactEmail,
+    surveyDate,
+    surveyStatus
+  };
 
   return (
     <div className="container py-8">
@@ -243,17 +256,7 @@ export function Dashboard() {
           <h2 className="text-xl font-semibold mb-4">העלאת תמונה</h2>
           <ImageUploader />
           <div className="mt-6">
-            <ReportExport 
-              companyDetails={{
-                name: companyName,
-                address,
-                contactName,
-                contactPhone,
-                contactEmail,
-                surveyDate,
-                surveyStatus
-              }}
-            />
+            <ReportExport companyDetails={companyDetails} />
           </div>
         </div>
         
