@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Dashboard } from "./components/Dashboard";
 import { ReportProvider } from "./context/ReportContext";

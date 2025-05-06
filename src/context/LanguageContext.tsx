@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState } from 'react';
 
-// Export the SupportedLanguage type - remove Spanish
+// Export the SupportedLanguage type - removed Spanish
 export type SupportedLanguage = 'en' | 'he';
 
 type LanguageContextType = {
@@ -21,7 +21,7 @@ export const useLanguage = () => useContext(LanguageContext);
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
   const [language, setLanguage] = useState<SupportedLanguage>('he');
 
-  // Define translations for different languages - remove Spanish and improve English translations
+  // Define translations for different languages - removed Spanish
   const translations: Record<SupportedLanguage, Record<string, string>> = {
     en: {
       'safety.survey': 'Safety Survey',
