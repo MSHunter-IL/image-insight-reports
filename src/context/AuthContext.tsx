@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'https://image-insight-reports.lovable.app',
+        redirectTo: window.location.origin,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
