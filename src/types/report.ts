@@ -1,7 +1,7 @@
 
-export type UrgencyLevel = 'גבוהה' | 'בינונית' | 'נמוכה';
-export type StatusType = 'טרם טופל' | 'בטיפול' | 'טופל';
-export type ImageCategory = 'חוץ' | 'פנים' | 'מסמכים' | 'תשתיות' | 'אחר';
+export type UrgencyLevel = 'גבוהה' | 'בינונית' | 'נמוכה' | 'High' | 'Medium' | 'Low';
+export type StatusType = 'טרם טופל' | 'בטיפול' | 'טופל' | 'Untreated' | 'In Progress' | 'Treated';
+export type ImageCategory = 'חוץ' | 'פנים' | 'מסמכים' | 'תשתיות' | 'אחר' | 'External' | 'Internal' | 'Documents' | 'Infrastructure' | 'Other';
 
 export interface ReportEntry {
   id: string;

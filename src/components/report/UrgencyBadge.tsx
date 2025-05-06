@@ -12,10 +12,13 @@ export function UrgencyBadge({ urgency }: UrgencyBadgeProps) {
   const getUrgencyIcon = (urgency: UrgencyLevel) => {
     switch (urgency) {
       case 'גבוהה':
+      case 'High':
         return <AlertCircle className="h-4 w-4" />;
       case 'בינונית':
+      case 'Medium':
         return <AlarmClock className="h-4 w-4" />;
       case 'נמוכה':
+      case 'Low':
         return <CheckCircle className="h-4 w-4" />;
       default:
         return null;
@@ -25,10 +28,13 @@ export function UrgencyBadge({ urgency }: UrgencyBadgeProps) {
   const getUrgencyClass = (urgency: UrgencyLevel) => {
     switch (urgency) {
       case 'גבוהה':
+      case 'High':
         return 'urgency-high';
       case 'בינונית':
+      case 'Medium':
         return 'urgency-medium';
       case 'נמוכה':
+      case 'Low':
         return 'urgency-low';
       default:
         return '';
