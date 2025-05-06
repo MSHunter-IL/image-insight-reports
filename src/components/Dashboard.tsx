@@ -12,6 +12,8 @@ import { useLanguage } from '@/context/LanguageContext';
 import { Button } from './ui/button';
 import { LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useSubscription } from '@/hooks/useSubscription';
+import { SubscriptionDialog } from './subscription/SubscriptionDialog';
 
 export function Dashboard() {
   const { t } = useLanguage();
@@ -23,6 +25,13 @@ export function Dashboard() {
   const [contactEmail, setContactEmail] = React.useState('');
   const [surveyDate, setSurveyDate] = React.useState<Date | undefined>(new Date());
   const [surveyStatus, setSurveyStatus] = React.useState('פתוח');
+  
+  const { 
+    isSubscribed, 
+    isSubscriptionDialogOpen, 
+    setIsSubscriptionDialogOpen,
+    handleSuccessfulSubscription
+  } = useSubscription();
 
   // Create a proper CompanyDetails object that includes the required id property
   const companyDetails: CompanyDetails = {
@@ -90,6 +99,13 @@ export function Dashboard() {
       </div>
       
       <Footer />
+      
+      {/* Subscription dialog */}
+      <SubscriptionDialog 
+        isOpen={isSubscriptionDialogOpen} 
+        setIsOpen={setIsSubscriptionDialogOpen}
+        onSubscribeSuccess={handleSuccessfulSubscription}
+      />
     </div>
   );
 }

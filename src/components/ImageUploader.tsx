@@ -10,14 +10,9 @@ import { FileWithPreview } from '@/types/imageUploader';
 import { DropZone } from './imageUploader/DropZone';
 import { ImagePreview } from './imageUploader/ImagePreview';
 import { ImageDetailsForm } from './imageUploader/ImageDetailsForm';
-
-const suggestedDescriptions = [
-  "סדק בקיר המבנה המערבי",
-  "חוסר במעקה בטיחות בגרם המדרגות",
-  "חיווט חשמלי חשוף במסדרון קומה 2",
-  "חוסר בשילוט בטיחות באזור המחסנים",
-  "דליפת מים מצינור במרתף"
-];
+import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
+import { useSubscription } from '@/hooks/useSubscription';
 
 export function ImageUploader() {
   const [files, setFiles] = useState<FileWithPreview[]>([]);
@@ -26,6 +21,30 @@ export function ImageUploader() {
   const [isDragging, setIsDragging] = useState(false);
   const { addEntry } = useReport();
   const { toast } = useToast();
+  const { t, language } = useLanguage();
+  const { user } = useAuth();
+  const { remainingFreeReports, handleReportCreation, showSubscriptionDialog } = useSubscription();
+
+  // Dynamic suggested descriptions based on the current language
+  const getSuggestedDescriptions = () => {
+    if (language === 'en') {
+      return [
+        "Crack in the western building wall",
+        "Missing safety railing on staircase",
+        "Exposed electrical wiring in 2nd floor corridor",
+        "Lack of safety signage in storage areas",
+        "Water leak from basement pipe"
+      ];
+    } else {
+      return [
+        "סדק בקיר המבנה המערבי",
+        "חוסר במעקה בטיחות בגרם המדרגות",
+        "חיווט חשמלי חשוף במסדרון קומה 2",
+        "חוסר בשילוט בטיחות באזור המחסנים",
+        "דליפת מים מצינור במרתף"
+      ];
+    }
+  };
 
   const handleFilesSelect = (selectedFiles: FileList) => {
     const newFilesArray: FileWithPreview[] = [];
@@ -35,7 +54,7 @@ export function ImageUploader() {
       
       const nameParts = file.name.split('.');
       nameParts.pop();
-      const topicFromName = nameParts.join('.').substring(0, 30) || 'ממצא חדש';
+      const topicFromName = nameParts.join('.').substring(0, 30) || (language === 'en' ? 'New finding' : 'ממצא חדש');
       
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -44,8 +63,8 @@ export function ImageUploader() {
           preview: event.target?.result as string,
           topic: topicFromName,
           description: '',
-          urgency: 'בינונית',
-          category: 'אחר'
+          urgency: language === 'en' ? 'Medium' : 'בינונית',
+          category: language === 'en' ? 'Other' : 'אחר'
         };
         
         newFilesArray.push(newFile);
@@ -66,8 +85,8 @@ export function ImageUploader() {
   const handleAnalyzeImage = async () => {
     if (files.length === 0) {
       toast({
-        title: "שגיאה",
-        description: "יש לבחור תמונה תחילה",
+        title: language === 'en' ? "Error" : "שגיאה",
+        description: language === 'en' ? "Please select an image first" : "יש לבחור תמונה תחילה",
         variant: "destructive"
       });
       return;
@@ -77,27 +96,28 @@ export function ImageUploader() {
 
     setIsAnalyzing(true);
     try {
-      const analysis = await analyzeImage(activeFile.preview, activeFile.description);
+      // Pass the language parameter to ensure analysis is done in the correct language
+      const analysis = await analyzeImage(activeFile.preview, activeFile.description, language);
       
       const updatedFiles = [...files];
       updatedFiles[activeFileIndex] = {
         ...activeFile,
-        description: analysis.description || 'אין תיאור',
-        urgency: analysis.suggestedUrgency || 'בינונית',
-        topic: analysis.suggestedTopic || 'ממצא חדש'
+        description: analysis.description || (language === 'en' ? 'No description' : 'אין תיאור'),
+        urgency: analysis.suggestedUrgency || (language === 'en' ? 'Medium' : 'בינונית'),
+        topic: analysis.suggestedTopic || (language === 'en' ? 'New finding' : 'ממצא חדש')
       };
       
       setFiles(updatedFiles);
 
       toast({
-        title: "ניתוח הושלם",
-        description: "התמונה נותחה בהצלחה",
+        title: language === 'en' ? "Analysis Complete" : "ניתוח הושלם",
+        description: language === 'en' ? "The image was analyzed successfully" : "התמונה נותחה בהצלחה",
       });
     } catch (error) {
       console.error("Error analyzing image:", error);
       toast({
-        title: "שגיאה בניתוח",
-        description: "לא ניתן לנתח את התמונה. נא הזן תיאור ידני.",
+        title: language === 'en' ? "Analysis Error" : "שגיאה בניתוח",
+        description: language === 'en' ? "Could not analyze the image. Please enter a description manually." : "לא ניתן לנתח את התמונה. נא הזן תיאור ידני.",
         variant: "destructive"
       });
     } finally {
@@ -137,19 +157,28 @@ export function ImageUploader() {
     
     if (files.length === 0) {
       toast({
-        title: "שגיאה",
-        description: "יש לבחור תמונה תחילה",
+        title: language === 'en' ? "Error" : "שגיאה",
+        description: language === 'en' ? "Please select an image first" : "יש לבחור תמונה תחילה",
         variant: "destructive"
       });
       return;
     }
 
+    // Check if the user has remaining reports or needs to subscribe
+    if (remainingFreeReports <= 0) {
+      showSubscriptionDialog();
+      return;
+    }
+
+    // Record report creation
+    handleReportCreation(files.length);
+
     files.forEach(fileData => {
       addEntry({
-        topic: fileData.topic || 'ממצא בטיחות',
-        description: fileData.description || 'אין תיאור',
+        topic: fileData.topic || (language === 'en' ? 'Safety finding' : 'ממצא בטיחות'),
+        description: fileData.description || (language === 'en' ? 'No description' : 'אין תיאור'),
         urgency: fileData.urgency,
-        status: 'טרם טופל',
+        status: language === 'en' ? 'Untreated' : 'טרם טופל',
         imageUrl: fileData.preview,
         imageFile: fileData.file,
         category: fileData.category
@@ -160,8 +189,10 @@ export function ImageUploader() {
     setActiveFileIndex(0);
     
     toast({
-      title: "הוספו לדוח",
-      description: `${files.length} פריטים נוספו לדוח בהצלחה`,
+      title: language === 'en' ? "Added to Report" : "הוספו לדוח",
+      description: language === 'en' 
+        ? `${files.length} item(s) added to report successfully` 
+        : `${files.length} פריטים נוספו לדוח בהצלחה`,
     });
   };
 
@@ -192,6 +223,16 @@ export function ImageUploader() {
   return (
     <Card className="w-full">
       <CardContent className="pt-6 pb-2">
+        {/* Show free reports counter if user is logged in */}
+        {user && (
+          <div className="mb-4 flex justify-between items-center">
+            <div className="text-sm font-medium">
+              {t('free.reports.remaining')}{' '}
+              <span className="text-primary">{remainingFreeReports}</span>
+            </div>
+          </div>
+        )}
+        
         <div 
           onDragEnter={handleDragEnter}
           onDragOver={handleDragOver}
@@ -218,12 +259,15 @@ export function ImageUploader() {
               onUpdate={updateActiveFile}
               onAnalyze={handleAnalyzeImage}
               isAnalyzing={isAnalyzing}
-              suggestedDescriptions={suggestedDescriptions}
+              suggestedDescriptions={getSuggestedDescriptions()}
             />
 
             <Button type="submit" className="w-full">
-              <Upload className="ml-2 h-4 w-4" />
-              הוסף {files.length > 1 ? `${files.length} תמונות` : "תמונה"} לדוח
+              <Upload className={language === 'he' ? "ml-2 h-4 w-4" : "mr-2 h-4 w-4"} />
+              {language === 'en' 
+                ? `Add ${files.length > 1 ? `${files.length} images` : "image"} to report`
+                : `הוסף ${files.length > 1 ? `${files.length} תמונות` : "תמונה"} לדוח`
+              }
             </Button>
           </form>
         )}

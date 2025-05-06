@@ -8,6 +8,8 @@ import { LanguageProvider } from "./context/LanguageContext";
 import { AuthProvider } from "./context/AuthContext";
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Auth from "./pages/Auth";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCanceled from "./pages/PaymentCanceled";
 import { useAuth } from "./context/AuthContext";
 
 // Protected route component
@@ -39,6 +41,8 @@ const AppRouter = () => {
             </ProtectedRoute>
           } 
         />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-canceled" element={<PaymentCanceled />} />
       </Routes>
       <Toaster />
     </Router>

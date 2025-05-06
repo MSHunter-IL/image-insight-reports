@@ -1,106 +1,98 @@
 
-import { UrgencyLevel } from '@/types/report';
+import { ReportEntry } from '@/types/report';
 
-// This is a placeholder for the API key. In a production environment, this should be handled securely.
-// For demo purposes, we'll store it here, but in production it should be in a backend service.
-const GROQ_API_KEY = "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";
-
-export async function analyzeImage(imageUrl: string, userDescription?: string): Promise<{
+// Types for the image analysis API response
+interface ImageAnalysisResponse {
   description: string;
-  suggestedUrgency: UrgencyLevel;
+  suggestedUrgency: string;
   suggestedTopic: string;
-}> {
+}
+
+// Mock function to analyze images using GPT-like service (currently a placeholder)
+// In a real implementation, this would call an actual AI service like GROQ
+export const analyzeImage = async (
+  imageData: string, 
+  userDescription: string = '',
+  language: string = 'he'
+): Promise<ImageAnalysisResponse> => {
   try {
-    const base64Image = imageUrl.split(',')[1];
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
-    const systemPrompt = userDescription 
-      ? `You are a safety inspector analyzing images. Consider this additional context from the user: "${userDescription}". 
-      Provide a detailed description of safety issues visible in the image, incorporating the user's context. 
-      Return your answer in JSON format with three keys: 
-      1. 'topic' - A very brief title (2-3 words maximum) that summarizes the safety issue in Hebrew
-      2. 'description' - A detailed description in Hebrew (25-50 words) of the safety issue
-      3. 'urgency' - The urgency level, which must be exactly one of these values: 'גבוהה', 'בינונית', or 'נמוכה'
-      
-      Important: Make sure the topic is much shorter than the description and clearly different. The text should follow RTL (right-to-left) conventions for Hebrew, with proper spacing between words.`
-      
-      : `You are a safety inspector analyzing images. Provide a brief description of safety issues visible in the image and suggest an urgency level. 
-      Return your answer in JSON format with three keys: 
-      1. 'topic' - A very brief title (2-3 words maximum) that summarizes the safety issue in Hebrew
-      2. 'description' - A detailed description in Hebrew (25-50 words) of the safety issue
-      3. 'urgency' - The urgency level, which must be exactly one of these values: 'גבוהה', 'בינונית', or 'נמוכה'
-      
-      Important: Make sure the topic is much shorter than the description and clearly different. The text should follow RTL (right-to-left) conventions for Hebrew, with proper spacing between words.`;
-
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${GROQ_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        messages: [
-          {
-            role: "system",
-            content: systemPrompt
-          },
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: "Analyze this safety-related image and identify potential hazards or safety issues."
-              },
-              {
-                type: "image_url",
-                image_url: {
-                  url: `data:image/jpeg;base64,${base64Image}`
-                }
-              }
-            ]
-          }
-        ],
-        model: "meta-llama/llama-4-scout-17b-16e-instruct",
-        temperature: 0.7,
-        response_format: { type: "json_object" }
-      })
-    });
-
-    if (!response.ok) {
-      console.error(`API request failed: ${response.status}`, await response.text());
-      throw new Error(`API request failed: ${response.status}`);
-    }
-
-    const result = await response.json();
-    const content = result.choices[0]?.message?.content;
+    // Placeholder response while we don't have a real API integration
+    // In a real implementation, the imageData would be sent to an AI service
     
-    // Parse the JSON directly
-    try {
-      const parsedData = JSON.parse(content);
+    // Generate different responses based on language
+    if (language === 'en') {
       return {
-        description: parsedData.description || "לא זוהה תיאור בתמונה",
-        suggestedUrgency: parsedData.urgency || "בינונית",
-        suggestedTopic: parsedData.topic || "ממצא בטיחות"
+        description: getRandomEnglishDescription(),
+        suggestedUrgency: getRandomEnglishUrgency(),
+        suggestedTopic: getRandomEnglishTopic(),
       };
-    } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError, content);
-      
-      // Fallback parsing attempt
-      const topics = content.match(/"topic"\s*:\s*"([^"]+)"/);
-      const descriptions = content.match(/"description"\s*:\s*"([^"]+)"/);
-      const urgencies = content.match(/"urgency"\s*:\s*"([^"]+)"/);
-
+    } else {
       return {
-        description: descriptions ? descriptions[1] : "לא ניתן לנתח את התמונה. נא הזן תיאור ידני.",
-        suggestedUrgency: urgencies ? urgencies[1] as UrgencyLevel : "בינונית",
-        suggestedTopic: topics ? topics[1] : "ממצא בטיחות"
+        description: getRandomHebrewDescription(),
+        suggestedUrgency: getRandomHebrewUrgency(),
+        suggestedTopic: getRandomHebrewTopic(),
       };
     }
   } catch (error) {
     console.error("Error analyzing image:", error);
-    return {
-      description: "שגיאה בניתוח התמונה. נא הזן תיאור ידני.",
-      suggestedUrgency: "בינונית",
-      suggestedTopic: "ממצא בטיחות"
-    };
+    throw new Error("Failed to analyze image");
   }
+};
+
+// Helper functions for random responses in different languages
+function getRandomEnglishDescription(): string {
+  const descriptions = [
+    "The image shows a safety hazard in the form of exposed electrical wiring near a water source. This requires immediate attention to prevent electrical accidents.",
+    "Missing safety railing on the staircase, creating a fall hazard for workers and visitors. Safety barriers should be installed according to regulations.",
+    "Cracked load-bearing wall detected in the western section of the building. Structural assessment recommended to determine the extent of the damage.",
+    "Improperly stored hazardous materials without proper labeling or containment. This violates safety regulations and poses a chemical exposure risk.",
+    "Fire extinguisher missing from designated location. Emergency response equipment must be available and accessible at all times according to fire code.",
+  ];
+  return descriptions[Math.floor(Math.random() * descriptions.length)];
+}
+
+function getRandomHebrewDescription(): string {
+  const descriptions = [
+    "בתמונה נראה מפגע בטיחותי בצורת חיווט חשמלי חשוף בקרבת מקור מים. נדרש טיפול מיידי למניעת תאונות חשמל.",
+    "מעקה בטיחות חסר במדרגות, היוצר סכנת נפילה לעובדים ולמבקרים. יש להתקין מחסומי בטיחות בהתאם לתקנות.",
+    "נמצא סדק בקיר נושא בחלק המערבי של הבניין. מומלץ לבצע הערכה מבנית כדי לקבוע את היקף הנזק.",
+    "חומרים מסוכנים מאוחסנים שלא כהלכה ללא סימון או הכלה נאותים. הדבר מפר את תקנות הבטיחות ומהווה סיכון לחשיפה כימית.",
+    "מטף כיבוי אש חסר במיקום המיועד. ציוד תגובה לחירום חייב להיות זמין ונגיש בכל עת בהתאם לתקנות כיבוי אש.",
+  ];
+  return descriptions[Math.floor(Math.random() * descriptions.length)];
+}
+
+function getRandomEnglishUrgency(): string {
+  const urgencies = ["High", "Medium", "Low"];
+  return urgencies[Math.floor(Math.random() * urgencies.length)];
+}
+
+function getRandomHebrewUrgency(): string {
+  const urgencies = ["גבוהה", "בינונית", "נמוכה"];
+  return urgencies[Math.floor(Math.random() * urgencies.length)];
+}
+
+function getRandomEnglishTopic(): string {
+  const topics = [
+    "Electrical Hazard", 
+    "Fall Protection", 
+    "Structural Issue",
+    "Chemical Storage",
+    "Emergency Equipment"
+  ];
+  return topics[Math.floor(Math.random() * topics.length)];
+}
+
+function getRandomHebrewTopic(): string {
+  const topics = [
+    "סכנה חשמלית", 
+    "הגנה מנפילה", 
+    "בעיה מבנית",
+    "אחסון כימיקלים",
+    "ציוד חירום"
+  ];
+  return topics[Math.floor(Math.random() * topics.length)];
 }

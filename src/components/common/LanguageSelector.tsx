@@ -16,7 +16,6 @@ export function LanguageSelector() {
   const languages: { code: SupportedLanguage; name: string }[] = [
     { code: 'en', name: t('english') },
     { code: 'he', name: t('hebrew') },
-    { code: 'es', name: t('spanish') },
   ];
 
   return (
