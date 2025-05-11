@@ -28,6 +28,9 @@ serve(async (req) => {
     const user = data.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
 
+    // Parse request body to get plan type
+    const { priceId } = await req.json();
+    
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2023-10-16",
@@ -49,23 +52,54 @@ serve(async (req) => {
       customerId = newCustomer.id;
     }
 
+    // Set price based on plan type
+    let priceData;
+    if (priceId === 'premium_monthly') {
+      priceData = {
+        currency: "usd",
+        product_data: {
+          name: "מנוי מקצועי חודשי",
+          description: "גישה לכל התכונות המקצועיות",
+        },
+        unit_amount: 3999, // $39.99 בסנטים
+        recurring: {
+          interval: "month",
+        },
+      };
+    } else if (priceId === 'premium_annual') {
+      priceData = {
+        currency: "usd",
+        product_data: {
+          name: "מנוי ארגוני שנתי",
+          description: "חיסכון שנתי עם כל התכונות",
+        },
+        unit_amount: 39999, // $399.99 בסנטים
+        recurring: {
+          interval: "year",
+        },
+      };
+    } else {
+      // מנוי חודשי כברירת מחדל
+      priceData = {
+        currency: "usd",
+        product_data: {
+          name: "מנוי מקצועי חודשי",
+          description: "גישה לכל התכונות המקצועיות",
+        },
+        unit_amount: 3999, // $39.99 בסנטים
+        recurring: {
+          interval: "month",
+        },
+      };
+    }
+
     // Create a checkout session for the subscription
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ["card"],
       line_items: [
         {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: "Safety Reports Premium",
-              description: "Unlimited safety reports and advanced features",
-            },
-            unit_amount: 999, // $9.99 in cents
-            recurring: {
-              interval: "month",
-            },
-          },
+          price_data: priceData,
           quantity: 1,
         },
       ],

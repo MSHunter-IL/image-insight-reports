@@ -1,39 +1,71 @@
 
+// מזהה משימה
+export interface TaskId {
+  id: string;
+}
+
+// סוגי דחיפות
 export type UrgencyLevel = 'גבוהה' | 'בינונית' | 'נמוכה';
+
+// סוגי סטטוס
 export type StatusType = 'טרם טופל' | 'בטיפול' | 'טופל';
+
+// קטגוריות תמונה
 export type ImageCategory = 'חוץ' | 'פנים' | 'מסמכים' | 'תשתיות' | 'אחר';
 
+// נתוני דוח
 export interface ReportEntry {
-  id: string;
+  id?: string;
   topic: string;
   description: string;
   urgency: UrgencyLevel;
   status: StatusType;
-  imageUrl: string;
+  imageUrl?: string;
   imageFile?: File;
-  timestamp: Date;
-  category?: ImageCategory;
+  category: ImageCategory;
   internalNotes?: string;
-  version?: number;
-  companyId?: string; // הפניה לחברה
+  dateAdded?: Date;
+  dateModified?: Date;
 }
 
-export interface SurveyTool {
-  id: string;
-  name: string;
-  type: string;
-  downloadCount: number;
-  lastDownload?: Date;
-}
-
+// מידע חברה
 export interface CompanyDetails {
   id: string;
   name: string;
   address: string;
   contactName: string;
   contactPhone: string;
-  contactEmail?: string;
+  contactEmail: string;
   surveyDate?: Date;
-  surveyStatus?: string;
-  surveyLocation?: string; // שדה חדש למיקום הסקר
+  surveyStatus: string;
+}
+
+// חברות מועדפות
+export interface CompanyFavorite {
+  id: string;
+  name: string;
+}
+
+// היסטוריית דוח
+export interface ReportHistory {
+  id: string;
+  date: string;
+  user: string;
+  action: string;
+  itemId?: string;
+}
+
+// פרטי סמל
+export interface LogoDetails {
+  imageData: string;
+  name: string;
+  position?: 'top' | 'bottom' | 'header';
+}
+
+// ייצור דוח אפשרויות
+export interface ReportGenerateOptions {
+  includeSummary: boolean;
+  includeImages: boolean;
+  includeNotes: boolean;
+  includeSignature: boolean;
 }

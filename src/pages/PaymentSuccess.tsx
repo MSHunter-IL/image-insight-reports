@@ -6,19 +6,46 @@ import { CheckCircle } from "lucide-react";
 import { Link } from 'react-router-dom';
 import { useLanguage } from "@/context/LanguageContext";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from '@/integrations/supabase/client';
+import { useLocation } from 'react-router-dom';
 
 export default function PaymentSuccess() {
   const { t } = useLanguage();
   const { toast } = useToast();
+  const location = useLocation();
 
-  // הודעת הצלחה כאשר הדף נטען
   useEffect(() => {
+    // הוצאת מזהה הסשן מפרמטרי ה-URL
+    const params = new URLSearchParams(location.search);
+    const sessionId = params.get('session_id');
+
+    // אימות התשלום מול Stripe (אופציונלי)
+    const verifyPayment = async () => {
+      if (sessionId) {
+        try {
+          const { error } = await supabase.functions.invoke('verify-subscription', {
+            body: { session_id: sessionId }
+          });
+
+          if (error) {
+            console.error('שגיאה באימות התשלום:', error);
+          }
+        } catch (error) {
+          console.error('שגיאה באימות התשלום:', error);
+        }
+      }
+    };
+
+    // קריאה לאימות התשלום
+    verifyPayment();
+
+    // הודעת הצלחה כאשר הדף נטען
     toast({
-      title: t('payment.success'),
+      title: "התשלום הצליח!",
       description: "המנוי שלך הופעל בהצלחה. יש לך כעת גישה בלתי מוגבלת!",
       variant: "default",
     });
-  }, [toast, t]);
+  }, [toast, location.search]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">

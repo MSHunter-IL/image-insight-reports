@@ -49,19 +49,19 @@ export function Dashboard() {
   return (
     <div className="container py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-center flex-grow">{t('safety.survey')}</h1>
+        <h1 className="text-3xl font-bold text-center flex-grow">סקר בטיחות</h1>
         <div className="flex items-center gap-2">
           {user && (
             <>
               <Link to="/subscription">
                 <Button variant="outline" size="sm">
                   <CreditCard className="h-4 w-4 ml-2" />
-                  {t('subscription.plans')}
+                  תוכניות מנוי
                 </Button>
               </Link>
               <Button variant="outline" size="sm" onClick={signOut}>
                 <LogOut className="h-4 w-4 ml-2" />
-                {t('auth.signout')}
+                התנתק
               </Button>
             </>
           )}
@@ -94,7 +94,7 @@ export function Dashboard() {
       
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         <div className="md:col-span-4">
-          <h2 className="text-xl font-semibold mb-4">{t('image.upload')}</h2>
+          <h2 className="text-xl font-semibold mb-4">העלאת תמונות</h2>
           <ImageUploader />
           <div className="mt-6">
             <ReportExport companyDetails={companyDetails} />
@@ -102,7 +102,7 @@ export function Dashboard() {
         </div>
         
         <div className="md:col-span-8">
-          <h2 className="text-xl font-semibold mb-4">{t('report.items')}</h2>
+          <h2 className="text-xl font-semibold mb-4">פריטי דוח</h2>
           <ReportList />
         </div>
       </div>

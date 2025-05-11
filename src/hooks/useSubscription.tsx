@@ -71,8 +71,8 @@ export function useSubscription() {
     if (isSubscribed) return;
     
     try {
-      // עדכון מספר הדוחות שנוצרו
-      const { data, error } = await supabase
+      // FIX: עדכון מספר הדוחות שנוצרו בצורה נכונה
+      const { error } = await supabase
         .from('user_report_usage')
         .update({ 
           reports_created: supabase.rpc('increment_reports', { amount: count }),

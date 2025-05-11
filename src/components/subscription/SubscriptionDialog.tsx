@@ -30,7 +30,7 @@ export function SubscriptionDialog({ isOpen, setIsOpen, onSubscribeSuccess }: Su
     
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId: 'premium_subscription' }
+        body: { priceId: 'premium_monthly' }
       });
       
       if (error) throw error;
@@ -55,13 +55,13 @@ export function SubscriptionDialog({ isOpen, setIsOpen, onSubscribeSuccess }: Su
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{t('subscription.required')}</DialogTitle>
-          <DialogDescription>{t('subscription.description')}</DialogDescription>
+          <DialogTitle>נדרש מנוי</DialogTitle>
+          <DialogDescription>הגעת למגבלת הדוחות החינמיים שלך. שדרג למנוי כדי ליצור דוחות נוספים.</DialogDescription>
         </DialogHeader>
         
         <div className="py-4">
           <div className="bg-primary/5 rounded-lg p-4 border border-primary/10">
-            <h3 className="font-semibold text-lg mb-2">{t('unlimited.reports')}</h3>
+            <h3 className="font-semibold text-lg mb-2">דוחות בלתי מוגבלים</h3>
             <ul className="space-y-2">
               <li className="flex items-start">
                 <CheckCircle className="h-5 w-5 text-primary ml-2 mt-0.5 shrink-0" />
@@ -87,7 +87,7 @@ export function SubscriptionDialog({ isOpen, setIsOpen, onSubscribeSuccess }: Su
             ביטול
           </Button>
           <Button onClick={handlePayment} disabled={isLoading}>
-            {isLoading ? "מעבד..." : t('proceed.to.payment')}
+            {isLoading ? "מעבד..." : "המשך לתשלום"}
           </Button>
         </DialogFooter>
       </DialogContent>
