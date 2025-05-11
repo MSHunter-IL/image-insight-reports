@@ -11,14 +11,15 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Auth from "./pages/Auth";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
+import Subscription from "./pages/Subscription";
 import { useAuth } from "./context/AuthContext";
 
-// Protected route component
+// רכיב דרך מוגנת
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
   
   if (isLoading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    return <div className="flex items-center justify-center h-screen">טוען...</div>;
   }
   
   if (!user) {
@@ -28,7 +29,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-// App router
+// נתב האפליקציה
 const AppRouter = () => {
   return (
     <Router>
@@ -39,6 +40,14 @@ const AppRouter = () => {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/subscription" 
+          element={
+            <ProtectedRoute>
+              <Subscription />
             </ProtectedRoute>
           } 
         />

@@ -14,7 +14,6 @@ export function LanguageSelector() {
   const { language, setLanguage, t } = useLanguage();
 
   const languages: { code: SupportedLanguage; name: string }[] = [
-    { code: 'en', name: t('english') },
     { code: 'he', name: t('hebrew') },
   ];
 
@@ -22,7 +21,7 @@ export function LanguageSelector() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm">
-          <Globe className="h-4 w-4 mr-2" />
+          <Globe className="h-4 w-4 ml-2" />
           {t('language')}
         </Button>
       </DropdownMenuTrigger>

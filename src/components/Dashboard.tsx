@@ -10,10 +10,11 @@ import { LanguageSelector } from './common/LanguageSelector';
 import { Footer } from './common/Footer';
 import { useLanguage } from '@/context/LanguageContext';
 import { Button } from './ui/button';
-import { LogOut } from 'lucide-react';
+import { LogOut, CreditCard } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
 import { SubscriptionDialog } from './subscription/SubscriptionDialog';
+import { Link } from 'react-router-dom';
 
 export function Dashboard() {
   const { t } = useLanguage();
@@ -33,9 +34,9 @@ export function Dashboard() {
     handleSuccessfulSubscription
   } = useSubscription();
 
-  // Create a proper CompanyDetails object that includes the required id property
+  // יצירת אובייקט CompanyDetails הכולל את מאפיין id הנדרש
   const companyDetails: CompanyDetails = {
-    id: 'local-form', // Adding a default id for the form data
+    id: 'local-form', // הוספת מזהה ברירת מחדל לנתוני הטופס
     name: companyName,
     address,
     contactName,
@@ -49,12 +50,20 @@ export function Dashboard() {
     <div className="container py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-center flex-grow">{t('safety.survey')}</h1>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 gap-2">
           {user && (
-            <Button variant="outline" size="sm" onClick={signOut}>
-              <LogOut className="h-4 w-4 mr-2" />
-              {t('auth.signout')}
-            </Button>
+            <>
+              <Link to="/subscription">
+                <Button variant="outline" size="sm">
+                  <CreditCard className="h-4 w-4 ml-2" />
+                  {t('subscription.plans')}
+                </Button>
+              </Link>
+              <Button variant="outline" size="sm" onClick={signOut}>
+                <LogOut className="h-4 w-4 ml-2" />
+                {t('auth.signout')}
+              </Button>
+            </>
           )}
           <div className="flex-shrink-0">
             <LanguageSelector />
@@ -100,7 +109,7 @@ export function Dashboard() {
       
       <Footer />
       
-      {/* Subscription dialog */}
+      {/* דיאלוג מנוי */}
       <SubscriptionDialog 
         isOpen={isSubscriptionDialogOpen} 
         setIsOpen={setIsSubscriptionDialogOpen}

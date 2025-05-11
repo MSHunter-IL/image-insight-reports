@@ -9,7 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 
 export default function PaymentSuccess() {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -28,34 +28,28 @@ export default function PaymentSuccess() {
         
         if (data?.active) {
           toast({
-            title: language === 'en' ? 'Success!' : 'הצלחה!',
-            description: language === 'en' 
-              ? 'Your subscription was successfully activated' 
-              : 'המנוי שלך הופעל בהצלחה',
+            title: 'הצלחה!',
+            description: 'המנוי שלך הופעל בהצלחה',
           });
         } else {
           toast({
-            title: language === 'en' ? 'Verification Pending' : 'אימות בהמתנה',
-            description: language === 'en'
-              ? 'Your payment is being processed. Access will be granted soon.'
-              : 'התשלום שלך מעובד. הגישה תינתן בקרוב.',
+            title: 'אימות בהמתנה',
+            description: 'התשלום שלך מעובד. הגישה תינתן בקרוב.',
             variant: 'default',
           });
         }
       } catch (error) {
-        console.error('Error verifying subscription:', error);
+        console.error('שגיאה באימות המנוי:', error);
         toast({
-          title: language === 'en' ? 'Verification Error' : 'שגיאת אימות',
-          description: language === 'en'
-            ? 'There was an error verifying your subscription. Please contact support.'
-            : 'אירעה שגיאה באימות המנוי שלך. אנא פנה לתמיכה.',
+          title: 'שגיאת אימות',
+          description: 'אירעה שגיאה באימות המנוי שלך. אנא פנה לתמיכה.',
           variant: 'destructive',
         });
       }
     };
     
     verifySubscription();
-  }, [sessionId, toast, language]);
+  }, [sessionId, toast]);
 
   return (
     <div className="container flex items-center justify-center min-h-screen py-10">
@@ -70,12 +64,10 @@ export default function PaymentSuccess() {
         </CardHeader>
         <CardContent className="text-center space-y-6">
           <p>
-            {language === 'en' 
-              ? 'Thank you for your subscription! You now have unlimited access to create reports.'
-              : 'תודה על המנוי שלך! כעת יש לך גישה בלתי מוגבלת ליצירת דוחות.'}
+            תודה על המנוי שלך! כעת יש לך גישה בלתי מוגבלת ליצירת דוחות.
           </p>
           <Button onClick={() => navigate('/')}>
-            {language === 'en' ? 'Return to Dashboard' : 'חזרה ללוח המחוונים'}
+            חזרה ללוח המחוונים
           </Button>
         </CardContent>
       </Card>

@@ -5,7 +5,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { SubscriptionDialog } from '@/components/subscription/SubscriptionDialog';
 
-// Maximum number of free reports a user can create
+// מספר הדוחות המקסימלי שמשתמש יכול ליצור בחינם
 const FREE_REPORTS_LIMIT = 10;
 
 export function useSubscription() {
@@ -15,13 +15,13 @@ export function useSubscription() {
   const [isSubscriptionDialogOpen, setIsSubscriptionDialogOpen] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
 
-  // Load user's report usage and subscription status
+  // טעינת נתוני המשתמש ומצב המנוי
   useEffect(() => {
     if (!user) return;
     
     const loadUserData = async () => {
       try {
-        // Check for user usage data
+        // בדיקת נתוני שימוש למשתמש
         const { data: usageData, error: usageError } = await supabase
           .from('user_report_usage')
           .select('reports_created')
@@ -29,25 +29,25 @@ export function useSubscription() {
           .single();
 
         if (usageError && usageError.code !== 'PGRST116') {
-          console.error('Error fetching user usage:', usageError);
+          console.error('שגיאה בטעינת נתוני משתמש:', usageError);
           return;
         }
 
-        // If user has usage data, calculate remaining reports
+        // אם יש נתוני שימוש למשתמש, חשב את מספר הדוחות שנותרו
         if (usageData) {
           const reportsCreated = usageData.reports_created || 0;
           setRemainingFreeReports(Math.max(0, FREE_REPORTS_LIMIT - reportsCreated));
         } else {
-          // New user, full allocation
+          // משתמש חדש, הקצאה מלאה
           setRemainingFreeReports(FREE_REPORTS_LIMIT);
           
-          // Create initial usage record
+          // יצירת רשומת שימוש התחלתית
           await supabase
             .from('user_report_usage')
             .insert({ user_id: user.id, reports_created: 0 });
         }
 
-        // Check if user has an active subscription
+        // בדיקה אם למשתמש יש מנוי פעיל
         const { data: subData } = await supabase
           .from('user_subscriptions')
           .select('active')
@@ -56,22 +56,22 @@ export function useSubscription() {
 
         setIsSubscribed(subData?.active === true);
       } catch (error) {
-        console.error('Error in loadUserData:', error);
+        console.error('שגיאה בטעינת נתוני משתמש:', error);
       }
     };
 
     loadUserData();
   }, [user]);
 
-  // Function to record report creation and update remaining count
+  // פונקציה לרישום יצירת דוח ועדכון מספר הדוחות שנותרו
   const handleReportCreation = async (count = 1) => {
     if (!user) return;
     
-    // If user is subscribed, don't decrement counter
+    // אם המשתמש מנוי, אל תפחית את המונה
     if (isSubscribed) return;
     
     try {
-      // Update the reports_created count
+      // עדכון מספר הדוחות שנוצרו
       const { data, error } = await supabase
         .from('user_report_usage')
         .update({ 
@@ -79,39 +79,38 @@ export function useSubscription() {
           updated_at: new Date().toISOString()
         })
         .eq('user_id', user.id)
-        .select('reports_created')
-        .single();
+        .select('reports_created');
 
       if (error) {
         throw error;
       }
 
-      // Update local state
-      if (data) {
-        setRemainingFreeReports(Math.max(0, FREE_REPORTS_LIMIT - data.reports_created));
+      // עדכון מצב מקומי
+      if (data && data.length > 0) {
+        setRemainingFreeReports(Math.max(0, FREE_REPORTS_LIMIT - data[0].reports_created));
       }
     } catch (error) {
-      console.error('Error updating report usage:', error);
+      console.error('שגיאה בעדכון נתוני שימוש:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to update report usage. Please try again.',
+        title: 'שגיאה',
+        description: 'נכשל בעדכון נתוני שימוש. אנא נסה שוב.',
         variant: 'destructive'
       });
     }
   };
 
-  // Helper function to show the subscription dialog
+  // פונקציית עזר להצגת דיאלוג המנוי
   const showSubscriptionDialog = () => {
     setIsSubscriptionDialogOpen(true);
   };
 
-  // Function called after successful subscription
+  // פונקציה שנקראת לאחר הצטרפות מוצלחת למנוי
   const handleSuccessfulSubscription = () => {
     setIsSubscribed(true);
     setIsSubscriptionDialogOpen(false);
     toast({
-      title: 'Subscription Activated',
-      description: 'You now have unlimited access to report creation!',
+      title: 'המנוי הופעל',
+      description: 'יש לך כעת גישה בלתי מוגבלת ליצירת דוחות!',
       variant: 'default'
     });
   };

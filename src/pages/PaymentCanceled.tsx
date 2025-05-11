@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function PaymentCanceled() {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   return (
@@ -23,12 +23,10 @@ export default function PaymentCanceled() {
         </CardHeader>
         <CardContent className="text-center space-y-6">
           <p>
-            {language === 'en' 
-              ? 'Your payment was canceled. You can still use your free reports or try again later.'
-              : 'התשלום שלך בוטל. אתה עדיין יכול להשתמש בדוחות החינמיים שלך או לנסות שוב מאוחר יותר.'}
+            התשלום שלך בוטל. אתה עדיין יכול להשתמש בדוחות החינמיים שלך או לנסות שוב מאוחר יותר.
           </p>
           <Button onClick={() => navigate('/')}>
-            {language === 'en' ? 'Return to Dashboard' : 'חזרה ללוח המחוונים'}
+            חזרה ללוח המחוונים
           </Button>
         </CardContent>
       </Card>
