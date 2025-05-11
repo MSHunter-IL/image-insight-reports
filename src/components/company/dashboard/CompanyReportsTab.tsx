@@ -41,7 +41,12 @@ export function CompanyReportsTab({ companyEntries }: CompanyReportsTabProps) {
               <TableRow key={entry.id}>
                 <TableCell className="font-medium">{index + 1}</TableCell>
                 <TableCell>{entry.topic}</TableCell>
-                <TableCell>{new Date(entry.timestamp).toLocaleDateString()}</TableCell>
+                <TableCell>{entry.timestamp 
+                  ? new Date(entry.timestamp).toLocaleDateString()
+                  : entry.dateAdded 
+                    ? new Date(entry.dateAdded).toLocaleDateString()
+                    : new Date().toLocaleDateString()
+                }</TableCell>
                 <TableCell><UrgencyBadge urgency={entry.urgency} /></TableCell>
                 <TableCell><StatusBadge status={entry.status} /></TableCell>
               </TableRow>

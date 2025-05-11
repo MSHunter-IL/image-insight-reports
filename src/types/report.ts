@@ -27,6 +27,9 @@ export interface ReportEntry {
   dateAdded?: Date;
   dateModified?: Date;
   companyId?: string;
+  // Adding missing properties that are being used in the code
+  timestamp?: Date;
+  version?: number;
 }
 
 // מידע חברה
@@ -39,6 +42,20 @@ export interface CompanyDetails {
   contactEmail: string;
   surveyDate?: Date;
   surveyStatus: string;
+  // Adding missing property that is being used in the code
+  surveyLocation?: string;
+}
+
+// Interface for form data used when creating a company
+export interface CompanyFormData {
+  name: string;
+  address: string;
+  contactName: string;
+  contactPhone: string;
+  contactEmail: string;
+  surveyDate?: Date;
+  surveyStatus: string;
+  surveyLocation?: string;
 }
 
 // חברות מועדפות

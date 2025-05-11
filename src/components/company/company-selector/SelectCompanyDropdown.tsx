@@ -44,7 +44,7 @@ export function SelectCompanyDropdown({
         <SelectContent>
           {companies.map(company => (
             <SelectItem key={company.id} value={company.id}>
-              {company.name} - {company.surveyLocation || t('not.specified')}
+              {company.name} {company.surveyLocation ? `- ${company.surveyLocation}` : ''}
             </SelectItem>
           ))}
         </SelectContent>

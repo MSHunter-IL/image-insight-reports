@@ -30,7 +30,7 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
         // Convert string dates back to Date objects
         const fixedEntries = parsed.map((entry: any) => ({
           ...entry,
-          timestamp: new Date(entry.timestamp)
+          timestamp: entry.timestamp ? new Date(entry.timestamp) : new Date()
         }));
         setEntries(fixedEntries);
       } catch (error) {
@@ -54,7 +54,7 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
       
       const openOldEntries = entries.filter(entry => 
         entry.status === 'טרם טופל' && 
-        entry.timestamp < sevenDaysAgo
+        entry.timestamp && entry.timestamp < sevenDaysAgo
       );
       
       if (openOldEntries.length > 0) {
@@ -94,7 +94,7 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
           ? { 
               ...entry, 
               ...updates,
-              version: (entry.version || 1) + 1 // Increment version
+              version: ((entry.version || 1) + 1) // Increment version
             } 
           : entry
       )
@@ -140,7 +140,7 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
       prev.map(entry => ({ 
         ...entry, 
         status: 'טופל' as StatusType,
-        version: (entry.version || 1) + 1
+        version: ((entry.version || 1) + 1)
       }))
     );
 

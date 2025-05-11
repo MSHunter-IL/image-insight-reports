@@ -23,6 +23,7 @@ const sampleCompanies: CompanyDetails[] = [
     contactName: 'ישראל ישראלי',
     contactPhone: '050-1234567',
     contactEmail: 'israel@company-a.co.il',
+    surveyStatus: 'פתוח',
     surveyLocation: 'אתר בנייה - רמת גן'
   },
   {
@@ -32,6 +33,7 @@ const sampleCompanies: CompanyDetails[] = [
     contactName: 'רונית כהן',
     contactPhone: '052-7654321',
     contactEmail: 'ronit@metal-industries.co.il',
+    surveyStatus: 'פתוח',
     surveyLocation: 'מפעל ראשי - חיפה'
   },
   {
@@ -41,6 +43,7 @@ const sampleCompanies: CompanyDetails[] = [
     contactName: 'דוד לוי',
     contactPhone: '053-9876543',
     contactEmail: 'david@levi-garage.co.il',
+    surveyStatus: 'פתוח',
     surveyLocation: 'סניף ירושלים'
   }
 ];
