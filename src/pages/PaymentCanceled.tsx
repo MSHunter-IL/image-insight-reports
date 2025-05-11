@@ -1,33 +1,36 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { XCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { useLanguage } from '@/context/LanguageContext';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { XCircle } from "lucide-react";
+import { Link } from 'react-router-dom';
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function PaymentCanceled() {
   const { t } = useLanguage();
-  const navigate = useNavigate();
 
   return (
-    <div className="container flex items-center justify-center min-h-screen py-10">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-destructive/10 p-4">
-            <XCircle className="h-8 w-8 text-destructive" />
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <Card className="w-[350px] text-center">
+        <CardHeader>
+          <div className="flex justify-center mb-4">
+            <div className="rounded-full bg-red-100 p-3">
+              <XCircle className="h-8 w-8 text-red-600" />
+            </div>
           </div>
-          <CardTitle className="text-2xl">
-            {t('payment.canceled')}
-          </CardTitle>
+          <CardTitle className="text-2xl">התשלום בוטל</CardTitle>
+          <CardDescription>לא בוצע חיוב</CardDescription>
         </CardHeader>
-        <CardContent className="text-center space-y-6">
-          <p>
-            התשלום שלך בוטל. אתה עדיין יכול להשתמש בדוחות החינמיים שלך או לנסות שוב מאוחר יותר.
-          </p>
-          <Button onClick={() => navigate('/')}>
-            חזרה ללוח המחוונים
-          </Button>
+        <CardContent className="space-y-4">
+          <p>התשלום בוטל ולא בוצע חיוב בכרטיס האשראי שלך.</p>
+          <div className="flex gap-2 pt-4">
+            <Link to="/subscription" className="flex-1">
+              <Button variant="outline" className="w-full">נסה שוב</Button>
+            </Link>
+            <Link to="/" className="flex-1">
+              <Button className="w-full">חזרה לדף הבית</Button>
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

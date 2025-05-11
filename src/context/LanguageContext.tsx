@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState } from 'react';
 
-// הגדרת סוג שפה נתמכת
+// הגדרת סוג שפה נתמכת - רק עברית
 export type SupportedLanguage = 'he';
 
 type LanguageContextType = {
@@ -21,7 +21,7 @@ export const useLanguage = () => useContext(LanguageContext);
 export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
   const [language, setLanguage] = useState<SupportedLanguage>('he');
 
-  // הגדרת תרגומים לשפות שונות
+  // הגדרת תרגומים רק בעברית
   const translations: Record<SupportedLanguage, Record<string, string>> = {
     he: {
       'safety.survey': 'סקר בטיחות',
@@ -117,6 +117,8 @@ export const LanguageProvider = ({ children }: { children: React.ReactNode }) =>
       'enterprise.plan': 'תוכנית ארגונית',
       'current.plan': 'התוכנית הנוכחית שלך',
       'compare.plans': 'השווה תוכניות',
+      'category': 'קטגוריה',
+      'description': 'תיאור',
     },
   };
 

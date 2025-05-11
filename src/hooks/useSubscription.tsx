@@ -78,16 +78,22 @@ export function useSubscription() {
           reports_created: supabase.rpc('increment_reports', { amount: count }),
           updated_at: new Date().toISOString()
         })
-        .eq('user_id', user.id)
-        .select('reports_created');
+        .eq('user_id', user.id);
 
       if (error) {
         throw error;
       }
 
-      // עדכון מצב מקומי
-      if (data && data.length > 0) {
-        setRemainingFreeReports(Math.max(0, FREE_REPORTS_LIMIT - data[0].reports_created));
+      // נקבל את המספר העדכני של דוחות
+      const { data: updatedData } = await supabase
+        .from('user_report_usage')
+        .select('reports_created')
+        .eq('user_id', user.id)
+        .single();
+
+      if (updatedData) {
+        // עדכון מצב מקומי
+        setRemainingFreeReports(Math.max(0, FREE_REPORTS_LIMIT - updatedData.reports_created));
       }
     } catch (error) {
       console.error('שגיאה בעדכון נתוני שימוש:', error);

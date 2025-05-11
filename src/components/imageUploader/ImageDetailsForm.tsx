@@ -23,7 +23,7 @@ export function ImageDetailsForm({
   isAnalyzing,
   suggestedDescriptions 
 }: ImageDetailsFormProps) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
 
   return (
     <div className="space-y-4">
@@ -34,7 +34,7 @@ export function ImageDetailsForm({
               <Label htmlFor="topic">{t('topic')}</Label>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{language === 'en' ? 'Enter a topic related to the finding' : 'הזן נושא הקשור לממצא'}</p>
+              <p>הזן נושא הקשור לממצא</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -42,8 +42,8 @@ export function ImageDetailsForm({
           id="topic"
           value={file.topic}
           onChange={(e) => onUpdate('topic', e.target.value)}
-          placeholder={language === 'en' ? 'Finding topic' : 'נושא הממצא'}
-          dir={language === 'he' ? "rtl" : "ltr"}
+          placeholder="נושא הממצא"
+          dir="rtl"
         />
       </div>
 
@@ -55,7 +55,7 @@ export function ImageDetailsForm({
                 <Label htmlFor="description">{t('description')}</Label>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{language === 'en' ? 'Describe the finding in detail' : 'תאר את הממצא בפירוט'}</p>
+                <p>תאר את הממצא בפירוט</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -83,7 +83,7 @@ export function ImageDetailsForm({
             placeholder={t('enter.description')}
             className="resize-none"
             rows={3}
-            dir={language === 'he' ? "rtl" : "ltr"}
+            dir="rtl"
           />
           {suggestedDescriptions.length > 0 && file.description === '' && (
             <div className="absolute top-full mt-1 w-full bg-white z-10 border rounded-md shadow-md">
@@ -109,7 +109,7 @@ export function ImageDetailsForm({
                 <Label htmlFor="urgency">{t('urgency')}</Label>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{language === 'en' ? 'Select urgency level for this finding' : 'בחר רמת דחיפות לטיפול בממצא'}</p>
+                <p>בחר רמת דחיפות לטיפול בממצא</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -121,9 +121,9 @@ export function ImageDetailsForm({
               <SelectValue placeholder={t('select.urgency')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="גבוהה">{language === 'en' ? 'High' : 'גבוהה'}</SelectItem>
-              <SelectItem value="בינונית">{language === 'en' ? 'Medium' : 'בינונית'}</SelectItem>
-              <SelectItem value="נמוכה">{language === 'en' ? 'Low' : 'נמוכה'}</SelectItem>
+              <SelectItem value="גבוהה">גבוהה</SelectItem>
+              <SelectItem value="בינונית">בינונית</SelectItem>
+              <SelectItem value="נמוכה">נמוכה</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -135,7 +135,7 @@ export function ImageDetailsForm({
                 <Label htmlFor="category">{t('category')}</Label>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{language === 'en' ? 'Categorize the image appropriately' : 'סווג את התמונה לקטגוריה מתאימה'}</p>
+                <p>סווג את התמונה לקטגוריה מתאימה</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -147,11 +147,11 @@ export function ImageDetailsForm({
               <SelectValue placeholder={t('select.category')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="חוץ">{language === 'en' ? 'Exterior' : 'חוץ'}</SelectItem>
-              <SelectItem value="פנים">{language === 'en' ? 'Interior' : 'פנים'}</SelectItem>
-              <SelectItem value="מסמכים">{language === 'en' ? 'Documents' : 'מסמכים'}</SelectItem>
-              <SelectItem value="תשתיות">{language === 'en' ? 'Infrastructure' : 'תשתיות'}</SelectItem>
-              <SelectItem value="אחר">{language === 'en' ? 'Other' : 'אחר'}</SelectItem>
+              <SelectItem value="חוץ">חוץ</SelectItem>
+              <SelectItem value="פנים">פנים</SelectItem>
+              <SelectItem value="מסמכים">מסמכים</SelectItem>
+              <SelectItem value="תשתיות">תשתיות</SelectItem>
+              <SelectItem value="אחר">אחר</SelectItem>
             </SelectContent>
           </Select>
         </div>

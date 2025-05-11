@@ -1,74 +1,44 @@
 
 import React, { useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useLanguage } from '@/context/LanguageContext';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { CheckCircle } from "lucide-react";
+import { Link } from 'react-router-dom';
+import { useLanguage } from "@/context/LanguageContext";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function PaymentSuccess() {
   const { t } = useLanguage();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const sessionId = searchParams.get('session_id');
 
+  // הודעת הצלחה כאשר הדף נטען
   useEffect(() => {
-    const verifySubscription = async () => {
-      if (!sessionId) return;
-      
-      try {
-        const { data, error } = await supabase.functions.invoke('verify-subscription', {
-          body: { session_id: sessionId }
-        });
-        
-        if (error) throw error;
-        
-        if (data?.active) {
-          toast({
-            title: 'הצלחה!',
-            description: 'המנוי שלך הופעל בהצלחה',
-          });
-        } else {
-          toast({
-            title: 'אימות בהמתנה',
-            description: 'התשלום שלך מעובד. הגישה תינתן בקרוב.',
-            variant: 'default',
-          });
-        }
-      } catch (error) {
-        console.error('שגיאה באימות המנוי:', error);
-        toast({
-          title: 'שגיאת אימות',
-          description: 'אירעה שגיאה באימות המנוי שלך. אנא פנה לתמיכה.',
-          variant: 'destructive',
-        });
-      }
-    };
-    
-    verifySubscription();
-  }, [sessionId, toast]);
+    toast({
+      title: t('payment.success'),
+      description: "המנוי שלך הופעל בהצלחה. יש לך כעת גישה בלתי מוגבלת!",
+      variant: "default",
+    });
+  }, [toast, t]);
 
   return (
-    <div className="container flex items-center justify-center min-h-screen py-10">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-primary/10 p-4">
-            <CheckCircle className="h-8 w-8 text-primary" />
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <Card className="w-[350px] text-center">
+        <CardHeader>
+          <div className="flex justify-center mb-4">
+            <div className="rounded-full bg-green-100 p-3">
+              <CheckCircle className="h-8 w-8 text-green-600" />
+            </div>
           </div>
-          <CardTitle className="text-2xl">
-            {t('payment.success')}
-          </CardTitle>
+          <CardTitle className="text-2xl">התשלום הצליח!</CardTitle>
+          <CardDescription>המנוי שלך הופעל בהצלחה</CardDescription>
         </CardHeader>
-        <CardContent className="text-center space-y-6">
-          <p>
-            תודה על המנוי שלך! כעת יש לך גישה בלתי מוגבלת ליצירת דוחות.
-          </p>
-          <Button onClick={() => navigate('/')}>
-            חזרה ללוח המחוונים
-          </Button>
+        <CardContent className="space-y-4">
+          <p>יש לך כעת גישה בלתי מוגבלת ליצירת דוחות בטיחות!</p>
+          <div className="pt-4">
+            <Link to="/">
+              <Button className="w-full">חזרה למסך הראשי</Button>
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>
