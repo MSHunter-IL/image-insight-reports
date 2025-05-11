@@ -42,7 +42,6 @@ export interface CompanyDetails {
   contactEmail: string;
   surveyDate?: Date;
   surveyStatus: string;
-  // Adding missing property that is being used in the code
   surveyLocation?: string;
 }
 
@@ -54,7 +53,7 @@ export interface CompanyFormData {
   contactPhone: string;
   contactEmail: string;
   surveyDate?: Date;
-  surveyStatus: string;
+  surveyStatus: string; // Making this required to match Omit<CompanyDetails, "id">
   surveyLocation?: string;
 }
 

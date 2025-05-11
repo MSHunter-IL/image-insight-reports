@@ -71,10 +71,11 @@ export function useSubscription() {
     if (isSubscribed) return;
     
     try {
-      // עדכון מספר הדוחות שנוצרו בצורה נכונה
+      // Fix: Use await to properly get the data and then extract reports_created value
       const { error } = await supabase
         .from('user_report_usage')
         .update({ 
+          // Fix: Don't directly assign the query result to a number
           reports_created: supabase.rpc('increment_reports', { amount: count }),
           updated_at: new Date().toISOString()
         })

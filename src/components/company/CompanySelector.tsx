@@ -11,9 +11,10 @@ export function CompanySelector() {
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
   const handleAddCompany = (company: CompanyFormData) => {
-    // Convert CompanyFormData to the expected format for addCompany
+    // CompanyFormData now includes surveyStatus as a required field
     addCompany({
       ...company,
+      // This is just a safeguard in case it's not provided, but the type now requires it
       surveyStatus: company.surveyStatus || 'פתוח'
     });
   };

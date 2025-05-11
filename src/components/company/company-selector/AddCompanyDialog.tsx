@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/components/ui/use-toast';
@@ -15,15 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
-interface CompanyFormData {
-  name: string;
-  address: string;
-  contactName: string;
-  contactPhone: string;
-  contactEmail: string;
-  surveyLocation: string;
-}
+import { CompanyFormData } from '@/types/report';
 
 interface AddCompanyDialogProps {
   open: boolean;
@@ -44,7 +35,8 @@ export function AddCompanyDialog({
     contactName: '',
     contactPhone: '',
     contactEmail: '',
-    surveyLocation: ''
+    surveyLocation: '',
+    surveyStatus: 'פתוח' // Adding default value for surveyStatus
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,7 +61,8 @@ export function AddCompanyDialog({
       contactName: '',
       contactPhone: '',
       contactEmail: '',
-      surveyLocation: ''
+      surveyLocation: '',
+      surveyStatus: 'פתוח' // Reset with default value
     });
     onOpenChange(false);
     
