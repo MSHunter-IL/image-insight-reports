@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { FcGoogle } from 'react-icons/fc';
 import { useLanguage } from '@/context/LanguageContext';
@@ -34,7 +34,7 @@ const Auth = () => {
     if (error) {
       toast({
         variant: "destructive",
-        title: t('auth.error'),
+        title: "שגיאת התחברות",
         description: error.message,
       });
     }
@@ -49,13 +49,13 @@ const Auth = () => {
     if (error) {
       toast({
         variant: "destructive",
-        title: t('auth.error'),
+        title: "שגיאת הרשמה",
         description: error.message,
       });
     } else {
       toast({
-        title: t('auth.checkEmail'),
-        description: t('auth.checkEmailDescription'),
+        title: "בדוק את האימייל שלך",
+        description: "נשלח אימייל אימות, אנא בדוק את תיבת הדואר שלך",
       });
     }
   };
@@ -64,14 +64,14 @@ const Auth = () => {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle>{t('auth.welcome')}</CardTitle>
-          <CardDescription>{t('auth.welcomeDescription')}</CardDescription>
+          <CardTitle>ברוכים הבאים</CardTitle>
+          <CardDescription>התחברו למערכת או הירשמו</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="signin">{t('auth.signin')}</TabsTrigger>
-              <TabsTrigger value="signup">{t('auth.signup')}</TabsTrigger>
+              <TabsTrigger value="signin">התחבר</TabsTrigger>
+              <TabsTrigger value="signup">הירשם</TabsTrigger>
             </TabsList>
             <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-4">
@@ -79,7 +79,7 @@ const Auth = () => {
                   <Input
                     id="email"
                     type="email"
-                    placeholder={t('auth.email')}
+                    placeholder="אימייל"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -89,14 +89,14 @@ const Auth = () => {
                   <Input
                     id="password"
                     type="password"
-                    placeholder={t('auth.password')}
+                    placeholder="סיסמה"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? t('auth.signingIn') : t('auth.signin')}
+                  {loading ? "מתחבר..." : "התחבר"}
                 </Button>
               </form>
             </TabsContent>
@@ -106,7 +106,7 @@ const Auth = () => {
                   <Input
                     id="email"
                     type="email"
-                    placeholder={t('auth.email')}
+                    placeholder="אימייל"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -116,14 +116,14 @@ const Auth = () => {
                   <Input
                     id="password"
                     type="password"
-                    placeholder={t('auth.password')}
+                    placeholder="סיסמה"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? t('auth.signingUp') : t('auth.signup')}
+                  {loading ? "נרשם..." : "הירשם"}
                 </Button>
               </form>
             </TabsContent>
@@ -135,7 +135,7 @@ const Auth = () => {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                {t('auth.or')}
+                או
               </span>
             </div>
           </div>
@@ -147,7 +147,7 @@ const Auth = () => {
             disabled={loading}
           >
             <FcGoogle className="mr-2" size={20} />
-            {t('auth.googleAuth')}
+            התחבר עם Google
           </Button>
         </CardContent>
       </Card>

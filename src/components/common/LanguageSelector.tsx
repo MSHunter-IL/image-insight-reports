@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useLanguage, SupportedLanguage } from '@/context/LanguageContext';
+import { useLanguage, LanguageType } from '@/context/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Globe } from 'lucide-react';
 import {
@@ -13,7 +13,7 @@ import {
 export function LanguageSelector() {
   const { language, setLanguage, t } = useLanguage();
 
-  const languages: { code: SupportedLanguage; name: string }[] = [
+  const languages: { code: LanguageType; name: string }[] = [
     { code: 'he', name: t('hebrew') },
   ];
 

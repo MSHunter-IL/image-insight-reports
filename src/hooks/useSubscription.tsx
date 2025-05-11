@@ -71,7 +71,7 @@ export function useSubscription() {
     if (isSubscribed) return;
     
     try {
-      // FIX: עדכון מספר הדוחות שנוצרו בצורה נכונה
+      // עדכון מספר הדוחות שנוצרו בצורה נכונה
       const { error } = await supabase
         .from('user_report_usage')
         .update({ 
@@ -93,7 +93,8 @@ export function useSubscription() {
 
       if (updatedData) {
         // עדכון מצב מקומי
-        setRemainingFreeReports(Math.max(0, FREE_REPORTS_LIMIT - updatedData.reports_created));
+        const updatedReportsCount = updatedData.reports_created || 0;
+        setRemainingFreeReports(Math.max(0, FREE_REPORTS_LIMIT - updatedReportsCount));
       }
     } catch (error) {
       console.error('שגיאה בעדכון נתוני שימוש:', error);

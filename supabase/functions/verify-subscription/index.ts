@@ -9,116 +9,82 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
+  // טיפול בבקשות CORS מקדימות
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Get the session ID from the request
     const { session_id } = await req.json();
-    
+
     if (!session_id) {
-      return new Response(JSON.stringify({ error: "Session ID is required" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      });
+      throw new Error("לא סופק מזהה סשן");
     }
 
-    // Initialize Stripe
+    // יצירת לקוח Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2023-10-16",
     });
 
-    // Retrieve the checkout session
+    // אחזור הסשן מ-Stripe
     const session = await stripe.checkout.sessions.retrieve(session_id);
-    
-    if (!session || !session.customer) {
-      return new Response(JSON.stringify({ error: "Invalid session" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      });
+
+    // אימות שהסשן הושלם בהצלחה
+    if (session.payment_status !== "paid") {
+      throw new Error("התשלום לא הושלם");
     }
 
-    // Retrieve the customer to get their email and user ID from metadata
-    const customer = await stripe.customers.retrieve(session.customer as string);
-    
-    if (!customer || customer.deleted) {
-      return new Response(JSON.stringify({ error: "Invalid customer" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      });
-    }
-
-    // Get user ID either from customer metadata or from auth
-    const email = customer.email;
-    const authHeader = req.headers.get("Authorization")!;
-    
-    // Create a Supabase client with the service role key to bypass RLS
+    // גישה ל-Supabase עם מפתח שירות
     const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_URL") || "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
+      { auth: { persistSession: false } }
     );
-    
-    // Get user details from email
-    const { data: userData } = await supabaseAdmin
-      .from("auth.users")
-      .select("id")
-      .eq("email", email)
-      .single();
-    
-    const userId = userData?.id || customer.metadata?.user_id;
-    
+
+    // אחזור משתמש לפי אימייל
+    let userId;
+    if (session.customer_details?.email) {
+      const { data: userData } = await supabaseAdmin
+        .from("auth.users")
+        .select("id")
+        .eq("email", session.customer_details.email)
+        .single();
+      
+      userId = userData?.id;
+    }
+
     if (!userId) {
-      return new Response(JSON.stringify({ error: "User not found" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 404,
-      });
+      throw new Error("לא ניתן למצוא את המשתמש");
     }
 
-    // Check if the subscription is active (payment succeeded)
-    let isActive = false;
-    if (session.payment_status === "paid") {
-      isActive = true;
-    } else if (session.subscription) {
-      // If there's a subscription ID, check its status
-      const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
-      isActive = subscription.status === "active";
-    }
-
-    // Update the user's subscription status in Supabase
-    const { data, error } = await supabaseAdmin
+    // עדכון מצב המנוי בטבלת המנויים
+    await supabaseAdmin
       .from("user_subscriptions")
       .upsert({
         user_id: userId,
-        stripe_customer_id: customer.id,
-        stripe_subscription_id: session.subscription as string,
-        active: isActive,
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: "user_id"
-      });
+        stripe_customer_id: session.customer,
+        stripe_subscription_id: session.subscription,
+        active: true,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' });
 
-    if (error) {
-      console.error("Error updating subscription:", error);
-      return new Response(JSON.stringify({ error: "Failed to update subscription status" }), {
+    return new Response(
+      JSON.stringify({ success: true }),
+      {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500,
-      });
-    }
-
-    return new Response(JSON.stringify({ 
-      active: isActive,
-      customer_id: customer.id,
-      user_id: userId
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
+        status: 200,
+      }
+    );
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+    const message = error instanceof Error ? error.message : "שגיאה לא ידועה";
+    console.error("שגיאה באימות המנוי:", message);
+    
+    return new Response(
+      JSON.stringify({ error: message }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      }
+    );
   }
 });

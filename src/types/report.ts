@@ -26,6 +26,7 @@ export interface ReportEntry {
   internalNotes?: string;
   dateAdded?: Date;
   dateModified?: Date;
+  companyId?: string;
 }
 
 // מידע חברה

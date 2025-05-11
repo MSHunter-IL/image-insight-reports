@@ -9,113 +9,99 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
+  // טיפול בבקשות CORS מקדימות
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Create Supabase client using the anon key for user authentication
-  const supabaseClient = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? ""
-  );
-
   try {
-    // Retrieve authenticated user
-    const authHeader = req.headers.get("Authorization")!;
-    const token = authHeader.replace("Bearer ", "");
-    const { data } = await supabaseClient.auth.getUser(token);
-    const user = data.user;
-    if (!user?.email) throw new Error("User not authenticated or email not available");
+    // אימות המשתמש מהבקשה
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      throw new Error("לא סופק טוקן אימות");
+    }
 
-    // Parse request body to get plan type
-    const { priceId } = await req.json();
-    
-    // Initialize Stripe
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") || "",
+      Deno.env.get("SUPABASE_ANON_KEY") || ""
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+
+    if (userError || !userData.user) {
+      throw userError || new Error("משתמש לא מזוהה");
+    }
+
+    const user = userData.user;
+
+    // קבלת סוג המנוי מגוף הבקשה
+    const { priceId = "premium_monthly" } = await req.json();
+
+    // יצירת אובייקט Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2023-10-16",
     });
 
-    // Check if a Stripe customer record exists for this user
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    // בדיקה האם המשתמש כבר קיים במערכת של Stripe
+    const customers = await stripe.customers.list({
+      email: user.email,
+      limit: 1,
+    });
+
     let customerId;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
     } else {
-      // Create a new customer if one doesn't exist
+      // יצירת לקוח חדש ב-Stripe
       const newCustomer = await stripe.customers.create({
         email: user.email,
         metadata: {
-          user_id: user.id
-        }
+          supabaseUserId: user.id,
+        },
       });
       customerId = newCustomer.id;
     }
 
-    // Set price based on plan type
-    let priceData;
-    if (priceId === 'premium_monthly') {
-      priceData = {
-        currency: "usd",
-        product_data: {
-          name: "מנוי מקצועי חודשי",
-          description: "גישה לכל התכונות המקצועיות",
-        },
-        unit_amount: 3999, // $39.99 בסנטים
-        recurring: {
-          interval: "month",
-        },
-      };
-    } else if (priceId === 'premium_annual') {
-      priceData = {
-        currency: "usd",
-        product_data: {
-          name: "מנוי ארגוני שנתי",
-          description: "חיסכון שנתי עם כל התכונות",
-        },
-        unit_amount: 39999, // $399.99 בסנטים
-        recurring: {
-          interval: "year",
-        },
-      };
-    } else {
-      // מנוי חודשי כברירת מחדל
-      priceData = {
-        currency: "usd",
-        product_data: {
-          name: "מנוי מקצועי חודשי",
-          description: "גישה לכל התכונות המקצועיות",
-        },
-        unit_amount: 3999, // $39.99 בסנטים
-        recurring: {
-          interval: "month",
-        },
-      };
-    }
+    // הגדרת מחירים לפי סוג מנוי
+    const prices = {
+      premium_monthly: "price_1RNYx0QHVIvC1gNSMyxrWuSX", // החלף במזהה המחיר האמיתי שלך
+    };
 
-    // Create a checkout session for the subscription
+    const priceIdToUse = prices[priceId as keyof typeof prices] || prices.premium_monthly;
+
+    // יצירת סשן Checkout
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ["card"],
       line_items: [
         {
-          price_data: priceData,
+          price: priceIdToUse,
           quantity: 1,
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get("origin")}/payment-canceled`,
+      success_url: `${req.headers.get("origin") || "https://localhost:3000"}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.get("origin") || "https://localhost:3000"}/payment-canceled`,
     });
 
-    return new Response(JSON.stringify({ url: session.url }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
+    return new Response(
+      JSON.stringify({ url: session.url }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      }
+    );
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+    const message = error instanceof Error ? error.message : "שגיאה לא ידועה";
+    console.error("שגיאה ביצירת סשן Checkout:", message);
+    
+    return new Response(
+      JSON.stringify({ error: message }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      }
+    );
   }
 });
