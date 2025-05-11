@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,6 +12,7 @@ import { ImageDetailsForm } from './imageUploader/ImageDetailsForm';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { useSubscription } from '@/hooks/useSubscription';
+import { UrgencyLevel, ImageCategory, StatusType } from '@/types/report';
 
 export function ImageUploader() {
   const [files, setFiles] = useState<FileWithPreview[]>([]);
@@ -63,8 +63,8 @@ export function ImageUploader() {
           preview: event.target?.result as string,
           topic: topicFromName,
           description: '',
-          urgency: language === 'en' ? 'Medium' : 'בינונית',
-          category: language === 'en' ? 'Other' : 'אחר'
+          urgency: language === 'en' ? 'Medium' as UrgencyLevel : 'בינונית' as UrgencyLevel,
+          category: language === 'en' ? 'Other' as ImageCategory : 'אחר' as ImageCategory
         };
         
         newFilesArray.push(newFile);
@@ -103,7 +103,7 @@ export function ImageUploader() {
       updatedFiles[activeFileIndex] = {
         ...activeFile,
         description: analysis.description || (language === 'en' ? 'No description' : 'אין תיאור'),
-        urgency: analysis.suggestedUrgency || (language === 'en' ? 'Medium' : 'בינונית'),
+        urgency: (analysis.suggestedUrgency || (language === 'en' ? 'Medium' : 'בינונית')) as UrgencyLevel,
         topic: analysis.suggestedTopic || (language === 'en' ? 'New finding' : 'ממצא חדש')
       };
       
@@ -177,11 +177,11 @@ export function ImageUploader() {
       addEntry({
         topic: fileData.topic || (language === 'en' ? 'Safety finding' : 'ממצא בטיחות'),
         description: fileData.description || (language === 'en' ? 'No description' : 'אין תיאור'),
-        urgency: fileData.urgency,
-        status: language === 'en' ? 'Untreated' : 'טרם טופל',
+        urgency: fileData.urgency as UrgencyLevel,
+        status: (language === 'en' ? 'Untreated' : 'טרם טופל') as StatusType,
         imageUrl: fileData.preview,
         imageFile: fileData.file,
-        category: fileData.category
+        category: fileData.category as ImageCategory
       });
     });
 
