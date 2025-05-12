@@ -70,20 +70,27 @@ export function useSubscription() {
     if (isSubscribed) return;
     
     try {
-      // קריאה לפונקציה להגדלת מונה הדוחות
-      const { data, error } = await supabase
-        .from('user_report_usage')
-        .update({ reports_created: supabase.rpc('increment_reports', { amount: count }) })
-        .eq('user_id', user.id)
-        .select('reports_created');
+      // קריאה לפונקציית RPC להגדלת מונה הדוחות
+      const { data, error } = await supabase.rpc('increment_reports', { amount: count });
       
       if (error) {
         throw error;
       }
 
-      if (data && data.length > 0) {
+      // לאחר הצלחת ה-RPC, קבל את הערך המעודכן מהמסד נתונים
+      const { data: updatedData, error: fetchError } = await supabase
+        .from('user_report_usage')
+        .select('reports_created')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      if (updatedData) {
         // עדכון מצב מקומי
-        const updatedReportsCount = data[0].reports_created || 0;
+        const updatedReportsCount = updatedData.reports_created || 0;
         setRemainingFreeReports(Math.max(0, FREE_REPORTS_LIMIT - updatedReportsCount));
       }
     } catch (error) {
