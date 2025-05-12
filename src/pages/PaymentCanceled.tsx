@@ -4,11 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { XCircle } from "lucide-react";
 import { Link } from 'react-router-dom';
-import { useLanguage } from "@/context/LanguageContext";
 
 export default function PaymentCanceled() {
-  const { t } = useLanguage();
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <Card className="w-[350px] text-center">

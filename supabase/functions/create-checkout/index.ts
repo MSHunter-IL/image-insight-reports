@@ -15,6 +15,9 @@ serve(async (req) => {
   }
 
   try {
+    // לוג לצורך דיבאג
+    console.log("התחלת פונקציית create-checkout");
+    
     // אימות המשתמש מהבקשה
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
@@ -30,20 +33,33 @@ serve(async (req) => {
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
 
     if (userError || !userData.user) {
+      console.error("שגיאת אימות משתמש:", userError);
       throw userError || new Error("משתמש לא מזוהה");
     }
+
+    console.log("משתמש מאומת:", userData.user.id);
 
     const user = userData.user;
 
     // קבלת סוג המנוי מגוף הבקשה
-    const { priceId = "premium_monthly" } = await req.json();
+    const requestBody = await req.json();
+    const { priceId = "premium_monthly" } = requestBody;
+    
+    console.log("התקבלה בקשה למנוי מסוג:", priceId);
 
     // יצירת אובייקט Stripe
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) {
+      console.error("מפתח Stripe לא מוגדר");
+      throw new Error("מפתח Stripe לא מוגדר");
+    }
+    
+    const stripe = new Stripe(stripeKey, {
       apiVersion: "2023-10-16",
     });
 
     // בדיקה האם המשתמש כבר קיים במערכת של Stripe
+    console.log("בודק אם המשתמש קיים ב-Stripe");
     const customers = await stripe.customers.list({
       email: user.email,
       limit: 1,
@@ -52,6 +68,7 @@ serve(async (req) => {
     let customerId;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
+      console.log("נמצא לקוח קיים ב-Stripe:", customerId);
     } else {
       // יצירת לקוח חדש ב-Stripe
       const newCustomer = await stripe.customers.create({
@@ -61,14 +78,16 @@ serve(async (req) => {
         },
       });
       customerId = newCustomer.id;
+      console.log("נוצר לקוח חדש ב-Stripe:", customerId);
     }
 
     // הגדרת מחירים לפי סוג מנוי
     const prices = {
-      premium_monthly: "price_1RNYx0QHVIvC1gNSMyxrWuSX", // החלף במזהה המחיר האמיתי שלך
+      premium_monthly: "price_1OmyWJDAjn3Vwx1cstzwCeWA", // יש לשים לב שמזהה המחיר הזה קיים בחשבון ה-Stripe שלך
     };
 
     const priceIdToUse = prices[priceId as keyof typeof prices] || prices.premium_monthly;
+    console.log("משתמש במזהה מחיר:", priceIdToUse);
 
     // יצירת סשן Checkout
     const session = await stripe.checkout.sessions.create({
@@ -84,6 +103,8 @@ serve(async (req) => {
       success_url: `${req.headers.get("origin") || "https://localhost:3000"}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin") || "https://localhost:3000"}/payment-canceled`,
     });
+
+    console.log("סשן Checkout נוצר בהצלחה:", session.id, "URL:", session.url);
 
     return new Response(
       JSON.stringify({ url: session.url }),

@@ -19,16 +19,19 @@ export default function PaymentSuccess() {
     const params = new URLSearchParams(location.search);
     const sessionId = params.get('session_id');
 
-    // אימות התשלום מול Stripe (אופציונלי)
+    // אימות התשלום מול Stripe
     const verifyPayment = async () => {
       if (sessionId) {
         try {
-          const { error } = await supabase.functions.invoke('verify-subscription', {
+          console.log("מאמת תשלום עם session_id:", sessionId);
+          const { data, error } = await supabase.functions.invoke('verify-subscription', {
             body: { session_id: sessionId }
           });
 
           if (error) {
             console.error('שגיאה באימות התשלום:', error);
+          } else {
+            console.log("תשלום אומת בהצלחה:", data);
           }
         } catch (error) {
           console.error('שגיאה באימות התשלום:', error);

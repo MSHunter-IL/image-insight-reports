@@ -15,49 +15,95 @@ serve(async (req) => {
   }
 
   try {
+    console.log("התחלת פונקציית verify-subscription");
     const { session_id } = await req.json();
 
     if (!session_id) {
       throw new Error("לא סופק מזהה סשן");
     }
+    
+    console.log("מזהה סשן שהתקבל:", session_id);
+
+    // בדיקת מפתח סודי של Stripe
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) {
+      console.error("מפתח Stripe לא מוגדר");
+      throw new Error("מפתח Stripe לא מוגדר");
+    }
 
     // יצירת לקוח Stripe
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripe = new Stripe(stripeKey, {
       apiVersion: "2023-10-16",
     });
 
     // אחזור הסשן מ-Stripe
+    console.log("מבקש פרטי סשן מ-Stripe");
     const session = await stripe.checkout.sessions.retrieve(session_id);
+    console.log("פרטי סשן התקבלו:", { 
+      payment_status: session.payment_status,
+      customer: session.customer,
+      customer_email: session.customer_details?.email,
+      subscription: session.subscription
+    });
 
     // אימות שהסשן הושלם בהצלחה
     if (session.payment_status !== "paid") {
+      console.log("תשלום לא הושלם, סטטוס:", session.payment_status);
       throw new Error("התשלום לא הושלם");
     }
 
     // גישה ל-Supabase עם מפתח שירות
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error("פרטי התחברות ל-Supabase חסרים");
+      throw new Error("פרטי התחברות ל-Supabase חסרים");
+    }
+    
     const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") || "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
+      supabaseUrl,
+      supabaseServiceKey,
       { auth: { persistSession: false } }
     );
 
     // אחזור משתמש לפי אימייל
     let userId;
     if (session.customer_details?.email) {
-      const { data: userData } = await supabaseAdmin
-        .from("auth.users")
+      console.log("מחפש משתמש לפי אימייל:", session.customer_details.email);
+      const { data: userData, error: userError } = await supabaseAdmin
+        .from("users")
         .select("id")
         .eq("email", session.customer_details.email)
         .single();
       
-      userId = userData?.id;
+      if (userError) {
+        console.log("שגיאה בחיפוש המשתמש:", userError);
+        
+        // ננסה לחפש בטבלת המשתמשים של Supabase
+        const { data: authUser } = await supabaseAdmin
+          .auth
+          .admin
+          .listUsers();
+        
+        const foundUser = authUser.users.find(u => u.email === session.customer_details?.email);
+        if (foundUser) {
+          userId = foundUser.id;
+          console.log("נמצא משתמש בטבלת auth:", userId);
+        }
+      } else {
+        userId = userData?.id;
+        console.log("נמצא משתמש בטבלה המותאמת אישית:", userId);
+      }
     }
 
     if (!userId) {
+      console.error("לא נמצא משתמש עם האימייל המתאים");
       throw new Error("לא ניתן למצוא את המשתמש");
     }
 
     // עדכון מצב המנוי בטבלת המנויים
+    console.log("מעדכן נתוני מנוי למשתמש:", userId);
     await supabaseAdmin
       .from("user_subscriptions")
       .upsert({
@@ -67,6 +113,8 @@ serve(async (req) => {
         active: true,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' });
+
+    console.log("עדכון המנוי הושלם בהצלחה");
 
     return new Response(
       JSON.stringify({ success: true }),

@@ -84,7 +84,7 @@ export type Database = {
     }
     Functions: {
       increment_reports: {
-        Args: { amount: number }
+        Args: Record<PropertyKey, never> | { amount: number }
         Returns: number
       }
     }

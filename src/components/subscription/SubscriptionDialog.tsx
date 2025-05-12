@@ -29,13 +29,22 @@ export function SubscriptionDialog({ isOpen, setIsOpen, onSubscribeSuccess }: Su
     setIsLoading(true);
     
     try {
+      // לוג לבדיקת פרטי התשלום
+      console.log("מתחיל תהליך תשלום");
+      
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { priceId: 'premium_monthly' }
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error("שגיאה מקריאת פונקצית create-checkout:", error);
+        throw error;
+      }
+      
+      console.log("תגובה מפונקציית create-checkout:", data);
       
       if (data?.url) {
+        console.log("מפנה לדף תשלום:", data.url);
         window.location.href = data.url;
       } else {
         throw new Error('לא התקבלה כתובת תשלום');

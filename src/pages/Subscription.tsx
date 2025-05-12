@@ -18,13 +18,21 @@ export default function Subscription() {
   const startCheckout = async (priceId: string) => {
     setLoading(true);
     try {
+      console.log("מתחיל תהליך רכישת מנוי:", priceId);
+      
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { priceId }
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error("שגיאה בקריאה לפונקציה create-checkout:", error);
+        throw error;
+      }
+      
+      console.log("תגובה מהפונקציה:", data);
       
       if (data?.url) {
+        console.log("מעביר לדף תשלום:", data.url);
         window.location.href = data.url;
       } else {
         throw new Error('לא התקבלה כתובת תשלום');
