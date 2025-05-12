@@ -1,1 +1,5 @@
+
 project_id = "cmecyojlcdhkqucthrbj"
+
+[functions.increment_reports]
+verify_jwt = true

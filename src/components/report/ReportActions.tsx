@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, FileText, Download, Mail, CheckSquare } from 'lucide-react';
+import { Loader2, FileText, Mail, CheckSquare } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { useReport } from '@/context/ReportContext';
 import { emailReport } from '@/utils/reportGenerator';
@@ -22,8 +22,8 @@ export function ReportActions({
   const handleEmailSend = async () => {
     if (!companyDetails.contactEmail) {
       toast({
-        title: "Error",
-        description: "No email address provided for this company",
+        title: "שגיאה",
+        description: "לא סופקה כתובת אימייל לחברה זו",
         variant: "destructive"
       });
       return;
@@ -35,13 +35,13 @@ export function ReportActions({
       const result = await emailReport([], companyDetails, false);
       
       toast({
-        title: "Email Sent",
+        title: "אימייל נשלח",
         description: result.message,
       });
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to send email",
+        title: "שגיאה",
+        description: error.message || "שליחת האימייל נכשלה",
         variant: "destructive"
       });
     } finally {

@@ -42,7 +42,7 @@ export const emailReport = async (
   includeSummary = false
 ) => {
   if (!companyDetails.contactEmail) {
-    throw new Error('No email address provided');
+    throw new Error('לא סופקה כתובת אימייל');
   }
   
   // In a real implementation, this would send the email via a server API

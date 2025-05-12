@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { SubscriptionDialog } from '@/components/subscription/SubscriptionDialog';
 
 // מספר הדוחות המקסימלי שמשתמש יכול ליצור בחינם
 const FREE_REPORTS_LIMIT = 10;
@@ -71,23 +70,20 @@ export function useSubscription() {
     if (isSubscribed) return;
     
     try {
-      // קריאה לפונקציית ה-RPC להגדלת מונה הדוחות
-      const { error } = await supabase.rpc('increment_reports', { amount: count });
+      // קריאה לפונקציה להגדלת מונה הדוחות
+      const { data, error } = await supabase
+        .from('user_report_usage')
+        .update({ reports_created: supabase.rpc('increment_reports', { amount: count }) })
+        .eq('user_id', user.id)
+        .select('reports_created');
       
       if (error) {
         throw error;
       }
 
-      // נקבל את המספר העדכני של דוחות
-      const { data: updatedData } = await supabase
-        .from('user_report_usage')
-        .select('reports_created')
-        .eq('user_id', user.id)
-        .single();
-
-      if (updatedData) {
+      if (data && data.length > 0) {
         // עדכון מצב מקומי
-        const updatedReportsCount = updatedData.reports_created || 0;
+        const updatedReportsCount = data[0].reports_created || 0;
         setRemainingFreeReports(Math.max(0, FREE_REPORTS_LIMIT - updatedReportsCount));
       }
     } catch (error) {

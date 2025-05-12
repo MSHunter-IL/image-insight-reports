@@ -10,7 +10,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLocation } from 'react-router-dom';
 
 export default function PaymentSuccess() {
-  const { t } = useLanguage();
   const { toast } = useToast();
   const location = useLocation();
 
