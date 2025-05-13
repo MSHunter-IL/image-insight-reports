@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Dialog,
@@ -29,28 +28,27 @@ export function SubscriptionDialog({ isOpen, setIsOpen, onSubscribeSuccess }: Su
     setIsLoading(true);
     
     try {
-      // לוג לבדיקת פרטי התשלום
-      console.log("מתחיל תהליך תשלום");
-      
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId: 'premium_monthly' }
+      const { data, error } = await supabase.functions.invoke('stripe-checkout', {
+        body: { 
+          price_id: 'price_1ROE8iQHVIvC1gNSLwM7AlDd',
+          mode: 'subscription',
+          success_url: `${window.location.origin}/payment-success`,
+          cancel_url: `${window.location.origin}/payment-canceled`
+        }
       });
       
       if (error) {
-        console.error("שגיאה מקריאת פונקצית create-checkout:", error);
+        console.error("Error creating checkout session:", error);
         throw error;
       }
       
-      console.log("תגובה מפונקציית create-checkout:", data);
-      
       if (data?.url) {
-        console.log("מפנה לדף תשלום:", data.url);
         window.location.href = data.url;
       } else {
-        throw new Error('לא התקבלה כתובת תשלום');
+        throw new Error('No checkout URL received');
       }
     } catch (error) {
-      console.error('שגיאה בהתחלת תהליך התשלום:', error);
+      console.error('Error starting payment:', error);
       toast({
         title: 'שגיאה',
         description: 'נכשל בהתחלת תהליך התשלום. אנא נסה שנית.',

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
@@ -20,6 +19,14 @@ export function useSubscription() {
     
     const loadUserData = async () => {
       try {
+        // Check subscription status
+        const { data: subscriptionData } = await supabase
+          .from('stripe_user_subscriptions')
+          .select('subscription_status')
+          .single();
+
+        setIsSubscribed(subscriptionData?.subscription_status === 'active');
+
         // בדיקת נתוני שימוש למשתמש
         const { data: usageData, error: usageError } = await supabase
           .from('user_report_usage')
@@ -45,15 +52,6 @@ export function useSubscription() {
             .from('user_report_usage')
             .insert({ user_id: user.id, reports_created: 0 });
         }
-
-        // בדיקה אם למשתמש יש מנוי פעיל
-        const { data: subData } = await supabase
-          .from('user_subscriptions')
-          .select('active')
-          .eq('user_id', user.id)
-          .single();
-
-        setIsSubscribed(subData?.active === true);
       } catch (error) {
         console.error('שגיאה בטעינת נתוני משתמש:', error);
       }

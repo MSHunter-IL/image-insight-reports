@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,34 +13,34 @@ export default function PaymentSuccess() {
   const location = useLocation();
 
   useEffect(() => {
-    // הוצאת מזהה הסשן מפרמטרי ה-URL
+    // Extract session ID from URL parameters
     const params = new URLSearchParams(location.search);
     const sessionId = params.get('session_id');
 
-    // אימות התשלום מול Stripe
+    // Verify payment with Stripe
     const verifyPayment = async () => {
       if (sessionId) {
         try {
-          console.log("מאמת תשלום עם session_id:", sessionId);
-          const { data, error } = await supabase.functions.invoke('verify-subscription', {
+          console.log("Verifying payment with session_id:", sessionId);
+          const { data, error } = await supabase.functions.invoke('stripe-webhook', {
             body: { session_id: sessionId }
           });
 
           if (error) {
-            console.error('שגיאה באימות התשלום:', error);
+            console.error('Error verifying payment:', error);
           } else {
-            console.log("תשלום אומת בהצלחה:", data);
+            console.log("Payment verified successfully:", data);
           }
         } catch (error) {
-          console.error('שגיאה באימות התשלום:', error);
+          console.error('Error verifying payment:', error);
         }
       }
     };
 
-    // קריאה לאימות התשלום
+    // Call payment verification
     verifyPayment();
 
-    // הודעת הצלחה כאשר הדף נטען
+    // Show success toast when page loads
     toast({
       title: "התשלום הצליח!",
       description: "המנוי שלך הופעל בהצלחה. יש לך כעת גישה בלתי מוגבלת!",
