@@ -19,13 +19,14 @@ export function useSubscription() {
     
     const loadUserData = async () => {
       try {
-        // Check subscription status
+        // Check subscription status - use maybeSingle to handle no data
         const { data: subscriptionData } = await supabase
-          .from('stripe_user_subscriptions')
-          .select('subscription_status')
-          .single();
+          .from('user_subscriptions')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-        setIsSubscribed(subscriptionData?.subscription_status === 'active');
+        setIsSubscribed(subscriptionData?.active === true);
 
         // בדיקת נתוני שימוש למשתמש
         const { data: usageData, error: usageError } = await supabase
