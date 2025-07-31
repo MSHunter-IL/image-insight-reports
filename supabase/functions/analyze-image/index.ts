@@ -49,7 +49,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.2-11b-vision-preview',
+        model: 'meta-llama/llama-4-maverick-17b-128e-instruct',
         messages: [
           {
             role: 'system',
