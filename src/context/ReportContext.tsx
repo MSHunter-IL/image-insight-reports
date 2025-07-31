@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ReportEntry, UrgencyLevel, StatusType } from '@/types/report';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface ReportContextType {
   entries: ReportEntry[];
@@ -20,6 +21,7 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
   const [entries, setEntries] = useState<ReportEntry[]>([]);
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { user } = useAuth();
 
   // Load from localStorage on init
   useEffect(() => {
@@ -46,8 +48,10 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
     }
   }, [entries]);
 
-  // Check for reports open for more than 7 days
+  // Check for reports open for more than 7 days - only for authenticated users
   useEffect(() => {
+    if (!user) return; // Only show reminders for authenticated users
+    
     const checkOldEntries = () => {
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -70,7 +74,7 @@ export function ReportProvider({ children }: { children: React.ReactNode }) {
     const interval = setInterval(checkOldEntries, 24 * 60 * 60 * 1000); // Check daily
     
     return () => clearInterval(interval);
-  }, [entries, toast, t]);
+  }, [entries, toast, t, user]);
 
   const addEntry = (entry: Omit<ReportEntry, 'id' | 'timestamp' | 'version'>) => {
     const newEntry: ReportEntry = {
