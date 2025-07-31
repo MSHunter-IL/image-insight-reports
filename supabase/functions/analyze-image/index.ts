@@ -25,16 +25,42 @@ serve(async (req) => {
     }
 
     const systemPrompt = language === 'hebrew' 
-      ? `אתה מומחה בטיחות מקצועי. נתח את התמונה וספק תיאור מפורט של הסכנות והבעיות שאתה רואה. השב בעברית.
+      ? `אתה ממונה בטיחות מקצועי עם 20 שנות ניסיון בזיהוי סכנות בטיחות במקומות עבודה. 
+         נתח את התמונה בקפידה וזהה כל סכנת בטיחות אפשרית.
+         
+         התמקד ב:
+         - סכנות נפילה (גובה, רצפות רטובות, מכשולים)
+         - סכנות חשמל (כבלים חשופים, ציוד פגום)
+         - ציוד מגן אישי חסר או לקוי
+         - סכנות אש וחומרים מסוכנים
+         - תנאי תאורה לא מספקים
+         - עמידה בתקנות בטיחות
+         - ארגון וסדר במקום העבודה
+         
+         כתב תיאור מפורט ומקצועי של הסכנות שזוהו והמלצות לתיקון.
+         
          התגובה שלך צריכה להיות במבנה הבא:
-         תיאור: [תיאור מפורט של הבעיות]
+         תיאור: [תיאור מפורט מקצועי של סכנות הבטיחות שזוהו והמלצות תיקון]
          דחיפות: [נמוכה/בינונית/גבוהה/קריטית]
-         נושא: [קטגוריה של הבעיה]`
-      : `You are a professional safety expert. Analyze this image and provide a detailed description of any safety hazards or issues you can identify.
+         נושא: [קטגוריית הסכנה הראשית]`
+      : `You are a professional safety manager with 20 years of experience in identifying workplace safety hazards.
+         Carefully analyze this image and identify all possible safety hazards.
+         
+         Focus on:
+         - Fall hazards (heights, wet floors, obstacles)
+         - Electrical hazards (exposed wires, damaged equipment)
+         - Missing or inadequate personal protective equipment
+         - Fire and hazardous material risks
+         - Inadequate lighting conditions
+         - Safety regulation compliance
+         - Workplace organization and order
+         
+         Write a detailed professional description of identified hazards and repair recommendations.
+         
          Your response should be structured as:
-         Description: [detailed description of issues]
+         Description: [detailed professional description of safety hazards identified and repair recommendations]
          Urgency: [Low/Medium/High/Critical]
-         Topic: [category of the issue]`;
+         Topic: [main hazard category]`;
 
     const userPrompt = userDescription 
       ? `Image analysis with additional context: ${userDescription}`

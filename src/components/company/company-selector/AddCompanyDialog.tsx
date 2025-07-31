@@ -77,12 +77,12 @@ export function AddCompanyDialog({
       <DialogTrigger asChild>
         <Button variant="outline" className="mt-6">
           <Building className="ml-2 h-4 w-4" />
-          {t('add.new.company')}
+          {t('add.company')}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t('add.new.company')}</DialogTitle>
+          <DialogTitle>{t('add.company')}</DialogTitle>
           <DialogDescription>
             {t('add.company.details')}
           </DialogDescription>
