@@ -40,6 +40,8 @@ serve(async (req) => {
       ? `Image analysis with additional context: ${userDescription}`
       : 'Please analyze this image for safety issues';
 
+    console.log('Starting image analysis with Groq API');
+    
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -47,7 +49,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llava-v1.5-7b-4096-preview',
+        model: 'llama-3.2-11b-vision-preview',
         messages: [
           {
             role: 'system',
@@ -77,6 +79,7 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Groq API error:', response.status, errorText);
+      console.error('Request failed with status:', response.status);
       return new Response(JSON.stringify({ error: 'Failed to analyze image' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -84,7 +87,9 @@ serve(async (req) => {
     }
 
     const data = await response.json();
+    console.log('Groq API response received successfully');
     const content = data.choices[0].message.content;
+    console.log('Analysis content:', content);
 
     // Parse the response to extract structured data
     const lines = content.split('\n');
@@ -109,6 +114,8 @@ serve(async (req) => {
       suggestedTopic = language === 'hebrew' ? 'בטיחות כללית' : 'General Safety';
     }
 
+    console.log('Analysis completed successfully:', { description, suggestedUrgency, suggestedTopic });
+    
     return new Response(JSON.stringify({
       description,
       suggestedUrgency,
