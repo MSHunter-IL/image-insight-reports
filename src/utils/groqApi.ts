@@ -9,6 +9,13 @@ interface ImageAnalysisResponse {
 
 export const analyzeImage = async (imageData: string, userDescription?: string, language?: string): Promise<ImageAnalysisResponse> => {
   try {
+    console.log("📤 שליחת בקשה לניתוח תמונה:", {
+      hasImageData: !!imageData,
+      imageDataLength: imageData?.length,
+      userDescription,
+      language
+    });
+
     const { data, error } = await supabase.functions.invoke('analyze-image', {
       body: {
         imageData,
@@ -17,14 +24,26 @@ export const analyzeImage = async (imageData: string, userDescription?: string, 
       }
     });
 
+    console.log("📥 תגובה מהשרת:", {
+      data,
+      error,
+      hasData: !!data
+    });
+
     if (error) {
-      console.error('Error calling analyze-image function:', error);
+      console.error('❌ שגיאה בקריאה לפונקציית ניתוח התמונה:', error);
       throw new Error('Failed to analyze image');
     }
 
+    if (!data) {
+      console.error('❌ לא התקבלו נתונים מהשרת');
+      throw new Error('No data received from server');
+    }
+
+    console.log("✅ ניתוח התמונה הושלם בהצלחה:", data);
     return data;
   } catch (error) {
-    console.error('Error in analyzeImage:', error);
+    console.error('❌ שגיאה כללית בניתוח התמונה:', error);
     throw error;
   }
 };

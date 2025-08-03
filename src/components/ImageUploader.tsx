@@ -84,11 +84,26 @@ export function ImageUploader() {
     }
 
     const activeFile = files[activeFileIndex];
+    console.log("🔍 מתחיל ניתוח תמונה:", {
+      fileIndex: activeFileIndex,
+      fileName: activeFile?.file?.name,
+      hasPreview: !!activeFile?.preview,
+      currentDescription: activeFile?.description,
+      language
+    });
 
     setIsAnalyzing(true);
     try {
       // העבר את פרמטר השפה כדי להבטיח שהניתוח נעשה בשפה הנכונה
       const analysis = await analyzeImage(activeFile.preview, activeFile.description, language);
+      
+      console.log("✅ תוצאות ניתוח התמונה:", {
+        analysis,
+        originalDescription: activeFile.description,
+        newDescription: analysis.description,
+        suggestedUrgency: analysis.suggestedUrgency,
+        suggestedTopic: analysis.suggestedTopic
+      });
       
       const updatedFiles = [...files];
       updatedFiles[activeFileIndex] = {
@@ -98,6 +113,11 @@ export function ImageUploader() {
         topic: analysis.suggestedTopic || 'ממצא חדש'
       };
       
+      console.log("📝 עדכון הקובץ:", {
+        beforeUpdate: activeFile,
+        afterUpdate: updatedFiles[activeFileIndex]
+      });
+      
       setFiles(updatedFiles);
 
       toast({
@@ -105,7 +125,7 @@ export function ImageUploader() {
         description: "התמונה נותחה בהצלחה",
       });
     } catch (error) {
-      console.error("שגיאה בניתוח התמונה:", error);
+      console.error("❌ שגיאה בניתוח התמונה:", error);
       toast({
         title: "שגיאה בניתוח",
         description: "לא ניתן לנתח את התמונה. נא להזין תיאור ידנית.",

@@ -123,6 +123,7 @@ export default function Index() {
               </div>
               <div>
                 <ReportExport companyDetails={{
+                  id: 'temp-id',
                   name: '',
                   address: '',
                   contactName: '',
