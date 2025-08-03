@@ -124,21 +124,76 @@ serve(async (req) => {
     let suggestedTopic = '';
 
     for (const line of lines) {
-      if (line.includes('תיאור:') || line.includes('Description:')) {
-        description = line.split(':')[1]?.trim() || '';
-      } else if (line.includes('דחיפות:') || line.includes('Urgency:')) {
-        suggestedUrgency = line.split(':')[1]?.trim() || '';
-      } else if (line.includes('נושא:') || line.includes('Topic:')) {
-        suggestedTopic = line.split(':')[1]?.trim() || '';
+      const cleanLine = line.replace(/\*\*/g, '').trim(); // Remove ** markers
+      
+      if (cleanLine.includes('תיאור:') || cleanLine.includes('Description:')) {
+        description = cleanLine.split(':')[1]?.trim() || '';
+      } else if (cleanLine.includes('דחיפות:') || cleanLine.includes('Urgency:')) {
+        const urgency = cleanLine.split(':')[1]?.trim() || '';
+        // Map English urgency to Hebrew if needed
+        if (language === 'hebrew') {
+          if (urgency.toLowerCase().includes('low') || urgency.toLowerCase().includes('נמוכה')) {
+            suggestedUrgency = 'נמוכה';
+          } else if (urgency.toLowerCase().includes('high') || urgency.toLowerCase().includes('גבוהה')) {
+            suggestedUrgency = 'גבוהה';
+          } else if (urgency.toLowerCase().includes('critical') || urgency.toLowerCase().includes('קריטית')) {
+            suggestedUrgency = 'גבוהה';
+          } else {
+            suggestedUrgency = 'בינונית';
+          }
+        } else {
+          suggestedUrgency = urgency;
+        }
+      } else if (cleanLine.includes('נושא:') || cleanLine.includes('Topic:')) {
+        suggestedTopic = cleanLine.split(':')[1]?.trim() || '';
       }
     }
 
-    // Fallback if structured parsing fails
+    // Alternative parsing if the above doesn't work
+    if (!description || !suggestedUrgency || !suggestedTopic) {
+      // Try to find the data with different patterns
+      const cleanContent = content.replace(/\*\*/g, ''); // Remove all ** markers
+      
+      // Look for patterns without colons
+      const descMatch = cleanContent.match(/(תיאור|Description)[:\s]+(.*?)(?=דחיפות|Urgency|נושא|Topic|$)/s);
+      const urgencyMatch = cleanContent.match(/(דחיפות|Urgency)[:\s]+(.*?)(?=נושא|Topic|תיאור|Description|$)/s);
+      const topicMatch = cleanContent.match(/(נושא|Topic)[:\s]+(.*?)(?=תיאור|Description|דחיפות|Urgency|$)/s);
+      
+      if (descMatch && !description) {
+        description = descMatch[2]?.trim() || '';
+      }
+      if (urgencyMatch && !suggestedUrgency) {
+        const urgency = urgencyMatch[2]?.trim() || '';
+        if (language === 'hebrew') {
+          if (urgency.toLowerCase().includes('low') || urgency.includes('נמוכה')) {
+            suggestedUrgency = 'נמוכה';
+          } else if (urgency.toLowerCase().includes('high') || urgency.includes('גבוהה')) {
+            suggestedUrgency = 'גבוהה';
+          } else if (urgency.toLowerCase().includes('medium') || urgency.includes('בינונית')) {
+            suggestedUrgency = 'בינונית';
+          } else {
+            suggestedUrgency = 'בינונית';
+          }
+        } else {
+          suggestedUrgency = urgency;
+        }
+      }
+      if (topicMatch && !suggestedTopic) {
+        suggestedTopic = topicMatch[2]?.trim() || '';
+      }
+    }
+
+    // Final fallback if structured parsing fails
     if (!description) {
-      description = content;
+      description = content.replace(/\*\*/g, '').trim();
       suggestedUrgency = language === 'hebrew' ? 'בינונית' : 'Medium';
       suggestedTopic = language === 'hebrew' ? 'בטיחות כללית' : 'General Safety';
     }
+
+    // Clean up the extracted values
+    description = description.replace(/\*\*/g, '').trim();
+    suggestedUrgency = suggestedUrgency.replace(/\*\*/g, '').trim();
+    suggestedTopic = suggestedTopic.replace(/\*\*/g, '').trim();
 
     console.log('Analysis completed successfully:', { description, suggestedUrgency, suggestedTopic });
     
